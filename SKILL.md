@@ -125,8 +125,14 @@ Só consulta de comportamento, sem copiar código. Entram quando o módulo não 
 
 ## Verificar a própria skill
 
-Só na cópia de desenvolvimento: `teste/`, `package.json`, `auditor/testes/` e `modulos/pwa/testes/`
-ficam fora do repo público (o repo leva só a skill).
+Os testes dos dois auditores vão no repo e rodam em qualquer clone, sem `npm install`:
+
+```bash
+node --test auditor/testes/auditar.test.mjs modulos/pwa/testes/auditar.test.mjs
+```
+
+O resto (`teste/`, `package.json`: demos, vitrine, protótipo e testes visuais) fica só na cópia de
+desenvolvimento:
 
 ```bash
 cd ~/.claude/skills/tatile

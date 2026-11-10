@@ -1,0 +1,5 @@
+self.addEventListener('install', e => e.waitUntil(self.skipWaiting()))
+self.addEventListener('activate', e => e.waitUntil(caches.keys().then(n => Promise.all(n.map(x => caches.delete(x))))))
+self.addEventListener('fetch', e => { if (e.request.mode === 'navigate') e.respondWith(fetch(e.request)) })
+self.addEventListener('push', e => e.waitUntil(self.registration.showNotification('Oi')))
+self.addEventListener('notificationclick', e => e.notification.close())

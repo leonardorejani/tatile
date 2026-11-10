@@ -6,9 +6,10 @@ package-lock.json
 .DS_Store
 teste/prototipo/forma.js
 
-# So a skill vai pro repo publico. Testes, prototipos e demos ficam na copia de desenvolvimento.
+# Vao pro repo a skill e os testes dos auditores (rodam so com node --test). Demos, prototipos e
+# testes visuais ficam na copia de desenvolvimento.
 teste/
 package.json
 .npmrc
-auditor/testes/
-modulos/pwa/testes/
+# A fixture prova que o auditor pula node_modules: ela precisa ir pro repo
+!auditor/testes/fixtures/bom/node_modules/

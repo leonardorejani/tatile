@@ -1,0 +1,50 @@
+/* cor antiga: #ff0000 com padding: 13px, só histórico */
+:root {
+  color: #111111;
+  padding: 13px;
+}
+
+[data-tema="escuro"] {
+  --fundo: #0b0b0c;
+  background: #0b0b0c;
+}
+
+.card {
+  padding: var(--pad);
+  margin: 0 auto;
+  gap: calc(var(--grade) * 2);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-md);
+  color: var(--texto);
+  background: transparent;
+  fill: currentColor;
+}
+
+.pilula {
+  border-radius: 9999px;
+}
+
+.avatar {
+  border-radius: 50%;
+}
+
+.legado {
+  padding: 13px; /* tatile-ignorar */
+}
+
+button {
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--destaque);
+}
+
+input,
+textarea {
+  font-size: 16px;
+}
+
+.ancora #add {
+  top: 50%;
+}

@@ -1,0 +1,30 @@
+.hero {
+  background: linear-gradient(135deg, purple, blue);
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.5);
+  transition: all 0.2s;
+}
+
+.titulo-grad {
+  background: linear-gradient(90deg, red, orange);
+  -webkit-background-clip: text;
+}
+
+.rotulo {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.barra {
+  transition: width 0.3s;
+}
+
+.ponto {
+  animation: pulse 2s infinite;
+}
+
+.link:hover {
+  color: var(--destaque);
+}
+
+/* lista que rola dentro da página e vaza a rolagem para fora */
+.lista-vaza { max-height: 200px; overflow: auto }
