@@ -137,9 +137,7 @@
   /* recarregar (so no Com): o mesmo botao que carrega do teste/movimento. A pilula fecha em circulo, entra o
      spinner, fica verde com check e a largura volta ao texto. Mesmo com resposta rapida o circulo fecha e gira. */
   .botao-sec.btn-c .rot { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; }
-  .icone-girar { width: 15px; height: 15px; flex: none; }
   [data-atualizar][aria-busy="true"] { cursor: progress; }
-  body[data-versao="sem"] .icone-girar { display: none; }
 
   .vazio { text-align: center; padding: 32px 16px; color: var(--texto-2); font-size: var(--texto-sm); display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .vazio .icone-vazio { width: 44px; height: 44px; border-radius: var(--raio); background: var(--destaque-suave); color: var(--destaque); display: grid; place-items: center; font-weight: 700; }
@@ -273,7 +271,7 @@
             <button class="aba apertavel" data-aba="cancelados">Cancelados</button>
             <span class="ind" aria-hidden="true"></span>
           </div>
-          <button class="botao-sec btn-c apertavel" data-atualizar data-estado="parado"><span class="rot"><svg class="icone-girar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>Atualizar</span><svg class="spin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="40 100"/></svg><svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+          <button class="botao-sec btn-c apertavel" data-atualizar data-estado="parado"><span class="rot">Atualizar</span><svg class="spin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="40 100"/></svg><svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7"/></svg></button>
         </div>
         <div class="lista" data-lista></div>
       </section>

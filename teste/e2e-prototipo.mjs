@@ -219,7 +219,8 @@ await caso('atualizar: a pilula fecha em circulo, gira, fica verde com check e a
   assert.ok(carreg >= 40, `spinner girou so ${carreg} quadros (menos de uma volta)`)
   assert.ok(Math.abs(out[out.length - 1].w - w0) <= 1, 'largura original nao voltou')
   await clicar('versao', 'sem')
-  assert.equal(await css('[data-atualizar] .icone-girar', 'display'), 'none')
+  // pedido de 10/11/2026: botao com texto nao leva icone de seta do lado, nas duas versoes
+  assert.equal(await tela().$$eval('[data-atualizar] svg:not(.spin):not(.ok)', l => l.length), 0, 'icone de enfeite no Atualizar')
   await tela().click('[data-atualizar]'); await page.waitForTimeout(150)
   assert.equal(await tela().getAttribute('[data-atualizar]', 'data-estado'), 'parado', 'Sem animou o botao')
   await page.waitForTimeout(300)

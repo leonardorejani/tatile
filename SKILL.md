@@ -87,6 +87,10 @@ Vem do unslop. Serve para tela que já existe e "parece de template".
 8. **Testar também quem já usava.** Tudo que fica guardado no aparelho (forma do skeleton,
    preferência, cache do service worker) é testado com o dado da versão anterior no storage, não
    só em navegador limpo. Mudou o formato do que fica guardado: sobe a versão dele.
+9. **Botão com texto não leva ícone de enfeite do lado** (seta circular de atualizar, seta de
+   "ir", faísca, check decorativo). O rótulo já diz a ação. Ícone só quando o botão é só ícone
+   (com `aria-label`) ou quando o ícone é o estado (carregando, salvo). Decisão do Leonardo,
+   10/11/2026: "nunca use esses tipos de ícone e dessa forma".
 
 ## Código compartilhado
 

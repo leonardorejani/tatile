@@ -29,11 +29,12 @@ módulo skeleton. Fontes: Vercel, Rauno Freiberg, Emil Kowalski e unslop (heydam
      aparecem aqui assim que chegarem.", com o botão de criar quando fizer sentido).
    - Erro: o que aconteceu em linguagem de gente e "Tentar de novo". Nunca "Erro." solto nem tela
      em branco.
-5. **Botão que recarrega mostra que está carregando.** Ícone de recarregar no botão, girando
-   enquanto a carga roda (`aria-busy="true"`, clique repetido ignorado), no mínimo uma volta
-   (700 ms) para não parecer engasgo. Vale mesmo quando a resposta é rápida e o skeleton nem
-   aparece (regra 1): o ícone é o retorno do clique. Com `prefers-reduced-motion`, não gira, fica
-   a meia opacidade.
+5. **Botão que recarrega mostra que está carregando no próprio botão.** A pílula fecha em círculo,
+   o spinner gira (`aria-busy="true"`, clique repetido ignorado, no mínimo uma volta), fica verde
+   com check e volta ao texto (receita do módulo movimento, "botão que carrega"). Vale mesmo quando
+   a resposta é rápida e o skeleton nem aparece (regra 1): o botão é o retorno do clique. Com
+   `prefers-reduced-motion`, sem animar a largura. **Nunca** ícone de seta circular (ou qualquer
+   ícone de enfeite) do lado do texto "Atualizar" (decisão do Leonardo, 10/11/2026).
 
 6. **Hover só com mouse, e discreto.** Todo `:hover` vai dentro de
    `@media (hover: hover) and (pointer: fine)`: no celular o toque não deixa o card "grudado"
