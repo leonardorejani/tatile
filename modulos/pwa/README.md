@@ -85,13 +85,7 @@ principais renderizam sem estouro em 390 e 1280 px, e a notificação de teste f
 e aceita pelo serviço de push. O que só um aparelho prova (notificação aparecendo no iPhone, gesto,
 teclado) é dito como pendente, nunca como feito.
 
-## Regra 1.2: rolagem que não vaza
+## Toque, rolagem e área segura: módulo web
 
-`overscroll-behavior: contain` em modal, painel e lista rolável: chegou no fim da lista e a página
-de trás não começa a rolar. `overscroll-behavior: none` no `html` só dentro de
-`@media (pointer: fine)`, para manter o puxar-pra-atualizar no celular.
-
-```css
-.modal, .painel, .lista-rolavel { overscroll-behavior: contain }
-@media (pointer: fine) { html { overscroll-behavior: none } }
-```
+Rolagem que não vaza, barra de rolagem, `touch-action`, `user-select` e área segura valem para
+toda tela web, não só PWA. Moram em `modulos/web/README.md` desde a 1.4.0. Ler junto deste.

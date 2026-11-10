@@ -55,8 +55,8 @@ parece app; **dica** melhora o convite de instalação e o desktop. Modelos em `
 | N06 | erro | Tire `maximum-scale=1` e `user-scalable=no`. Para o zoom ao focar, fonte de 16 px no campo (N07). |
 | N07 | aviso | Campo com 16 px no mínimo (`text-base` no Tailwind). No desktop pode ser menor com `@media (pointer: fine)`. |
 | N08 | aviso | Ponha cada `:hover` dentro de `@media (hover: hover) and (pointer: fine)`. Tailwind 4 já faz isso no `hover:`. |
-| N09 | aviso | Com `viewport-fit=cover`, compense a área segura: `padding-bottom: env(safe-area-inset-bottom, 0px)` no dock e nas folhas, `env(safe-area-inset-top)` no topo. |
-| N10 | dica | `overscroll-behavior: none` no `html` e `contain` em cada área que rola dentro do app. |
+| N09 | aviso | Com `viewport-fit=cover`, compense a área segura: `padding-bottom: env(safe-area-inset-bottom, 0px)` no dock e nas folhas, `env(safe-area-inset-top)` no topo (módulo web, regra 5). |
+| N10 | dica | Nenhum `overscroll-behavior` no projeto. Ponha `none` no `html` dentro de `@media (pointer: fine)`. Área que rola sem `contain` não é dica: é erro no auditor da tatile (`rolagem-vaza`, módulo web, regra 1). |
 
 ## Desktop e loja (D)
 

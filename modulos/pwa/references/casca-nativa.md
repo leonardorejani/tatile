@@ -8,8 +8,9 @@
 - **Altura em `dvh`**: `h-dvh` na casca, nunca `100vh` (a barra do navegador corta o fundo).
 - Base mobile-native (`templates/css/base-nativa.css`): sem flash no toque, `touch-action:
   manipulation`, `:active` para retorno, campo com 16 px, `overscroll-behavior`, `user-select: none`
-  só em controle.
-- Área segura: `viewport-fit=cover` mais `env(safe-area-inset-*)` no topo, no dock e nas folhas.
+  só em controle. As regras por trás valem para toda web: `modulos/web/README.md`.
+- Área segura: `viewport-fit=cover` mais `env(safe-area-inset-*)` no topo, no dock e nas folhas
+  (módulo web, regra 5).
 
 ## Desktop (a partir de 768 px)
 

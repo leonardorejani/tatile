@@ -491,10 +491,10 @@ export const REGRAS = [
   },
   {
     // Lista que rola dentro de outra área que rola: no fim dela a rolagem passa para a de fora
-    // (scroll chaining) e a tela inteira anda junto. Regra do módulo pwa (N10), valendo para todo CSS.
+    // (scroll chaining) e a tela inteira anda junto. Módulo web, regra 1.
     id: 'rolagem-vaza', severidade: 'erro',
     descricao: 'Área que rola sem overscroll-behavior (no fim dela, a rolagem passa para a área de fora)',
-    correcao: 'acrescente overscroll-behavior: contain na mesma regra (modulos/pwa, N10)',
+    correcao: 'acrescente overscroll-behavior: contain na mesma regra, ou use a classe .rolagem (modulos/web, regra 1)',
     testar(linha, ctx) {
       if (!ctx.css) return false
       for (const m of linha.matchAll(/(?<![\w-])overflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/g)) {

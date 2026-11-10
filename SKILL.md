@@ -25,11 +25,13 @@ e teste que prova. A skill evolui por versão (`CHANGELOG.md`): a v1 é a base.
 | formularios | Colar liberado, teclado certo, erro do lado do campo, foco | `modulos/formularios/README.md` |
 | navegacao | Estado na URL, área de toque, menu que pisca ao escolher | `modulos/navegacao/README.md` |
 | movimento | Tempos, curvas e tokens de movimento (`--mov-rapido`, `--mov-padrao`, `--mov-lento`, `--curva-move`) | `modulos/movimento/README.md` |
+| web | Toque, rolagem que não vaza, barra de rolagem, área segura: vale para toda tela web | `modulos/web/README.md` |
 | pwa | App web instalável, offline, com notificação, que parece nativo no celular e no desktop | `modulos/pwa/README.md` |
 | auditor | Script que acha no código do projeto onde a regra foi quebrada | `auditor/` |
 
 Ler só o módulo que a tarefa toca. Tela nova costuma tocar espaçamento, tipografia, forma, cor e
-estados. A vitrine (`teste/vitrine.html`) mostra cada técnica rodando, Antes e Depois, e o protótipo
+estados. **Tela web (site, sistema, protótipo ou PWA) lê também o módulo web**: as regras de toque e
+rolagem dele valem para qualquer tela no navegador. A vitrine (`teste/vitrine.html`) mostra cada técnica rodando, Antes e Depois, e o protótipo
 (`teste/prototipo/`) mostra todas juntas numa tela de app, sem e com a tatile.
 
 ## Ordem quando mais de um módulo entra
@@ -94,12 +96,13 @@ Vem do unslop. Serve para tela que já existe e "parece de template".
 10. **Rolagem dentro de rolagem não vaza.** Toda área que rola dentro de outra (lista, folha,
     modal, painel, corpo de janela) leva `overscroll-behavior: contain`: chegou no fim dela, a de
     fora não começa a andar. O auditor dá erro (`rolagem-vaza`) em `overflow: auto` ou `scroll` sem
-    isso, menos em `html` e `body`. Pedido de 10/11/2026, depois de uma lista de apps no Deck
+    isso, menos em `html` e `body`. Detalhe e barra de rolagem: módulo web. Pedido de 10/11/2026, depois de uma lista de apps no Deck
     arrastar a janela inteira junto.
 
 ## Código compartilhado
 
 - `codigo/espaco.css`, `codigo/espaco.ts`: tokens de espaçamento (celular, tablet, desktop).
+- `codigo/rolagem.css`: área que rola contida, com barra fina que só aparece com o mouse em cima.
 - `codigo/tipo.css`, `codigo/forma.css`, `codigo/cor.css` e `codigo/tokens.ts`: tipografia, raio,
   sombra e cor (claro e escuro). O `tokens.ts` tem `raioDentro` e `contraste`.
 - `codigo/estados.ts`: `useAtrasoDeCarga`, `useEstadoNaUrl` (com núcleos sem React) e

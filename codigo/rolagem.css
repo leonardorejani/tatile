@@ -1,0 +1,36 @@
+/* Área que rola: não vaza para a de fora e tem barra fina, sem trilho, que só aparece com o mouse
+   em cima (como no macOS). Módulo web, regras 1 e 2. Precisa do cor.css (usa --texto).
+   No toque (celular, tablet) fica a barra do sistema: ela já é fina e some sozinha. */
+
+:root {
+  --barra: color-mix(in srgb, var(--texto) 28%, transparent);
+  --barra-forte: color-mix(in srgb, var(--texto) 45%, transparent);
+}
+
+.rolagem {
+  overflow: auto;
+  overscroll-behavior: contain; /* chegou no fim, a área de fora não começa a andar */
+}
+
+/* Largura que não pode pular quando a barra aparece (lista ao lado de outra, tabela alinhada) */
+.rolagem-estavel { scrollbar-gutter: stable; }
+
+@media (hover: hover) and (pointer: fine) {
+  /* Padrão (Chrome 121+, Firefox): fina, sem trilho, invisível até o mouse entrar */
+  .rolagem {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  .rolagem:hover, .rolagem:focus-visible { scrollbar-color: var(--barra) transparent; }
+
+  /* Safari: só entende o pseudo-elemento. O Chrome ignora isto quando há scrollbar-color. */
+  .rolagem::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
+  .rolagem::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+  }
+  .rolagem:hover::-webkit-scrollbar-thumb { background-color: var(--barra); }
+  .rolagem::-webkit-scrollbar-thumb:hover { background-color: var(--barra-forte); }
+}
