@@ -18,6 +18,10 @@
 - **SKILL.md:** protótipo que vai virar PWA conta como PWA, seção de telas de passo e de escolha
   (centralizar, prévia real, sem checks no fim, permissão pelo nome do sistema), checklist de
   entrega e tabela de problemas comuns.
+- **skill-updater, 3 rodadas (nota de 13 para 23 de 25):** a manutenção da própria skill (verificar,
+  como evoluir, créditos) saiu para `docs/manutencao.md`. O checklist virou 17 itens marcáveis.
+  Entraram "Quando usar", uma tabela de anti-padrões e `exemplos/deck.md`, com o antes e depois real
+  do Deck. O SKILL.md fica abaixo de 2000 palavras.
 
 ## 1.3.0 (10/11/2026)
 
