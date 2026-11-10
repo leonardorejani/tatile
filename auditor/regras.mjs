@@ -61,6 +61,20 @@ function corSolta(linha) {
   return f ? linha.slice(f.index).match(/^[^)]*\)?/)[0] : false
 }
 
+// theme-color (meta, manifesto, viewport do Next) não aceita var(): a cor tem que ser literal, e o
+// módulo cor manda ter uma por tema. Na lista do themeColor, a cor fica nas linhas de baixo.
+function ehThemeColor(linha, ctx) {
+  if (/<meta\b[^>]*\bname\s*=\s*["']theme-color["']/i.test(linha)) return true
+  if (/\b(?:theme_color|background_color|themeColor)\s*:/.test(linha)) return true
+  if (!/\bcolor\s*:/.test(linha)) return false
+  for (let i = ctx.indice - 1; i >= Math.max(0, ctx.indice - 8); i--) {
+    const l = ctx.linhas[i]
+    if (/\]/.test(l)) return false
+    if (/\bthemeColor\s*:\s*\[/.test(l)) return true
+  }
+  return false
+}
+
 // ---- cor (matiz, saturação) para gradiente e brilho ----
 
 // Só os nomes que carregam matiz: neutros (white, black, gray, transparent) nunca viram achado
@@ -259,7 +273,7 @@ export const REGRAS = [
     descricao: 'Cor literal no componente',
     correcao: 'use var(--texto), var(--fundo), var(--superficie), var(--borda) ou var(--destaque)',
     testar(linha, ctx) {
-      if (ctx.emSvg) return false
+      if (ctx.emSvg || ehThemeColor(linha, ctx)) return false
       return corSolta(linha)
     },
   },

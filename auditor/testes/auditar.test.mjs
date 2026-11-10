@@ -323,3 +323,16 @@ test('rolagem-vaza: área que rola sem overscroll-behavior dá erro, com contain
   assert.ok(acha(t, 'rolagem-vaza', { 'a.html': '<div style="height:60px;overflow:auto">x</div>\n' }), 'style em linha')
   assert.ok(!acha(t, 'rolagem-vaza', { 'a.html': '<div style="height:60px;overflow:auto;overscroll-behavior:contain">x</div>\n' }), 'style em linha com contain')
 })
+
+test('cor-solta: theme-color não conta (meta, manifesto e viewport do Next não aceitam var())', t => {
+  const html = '<meta name="theme-color" content="#1C1C1C" media="(prefers-color-scheme: dark)">\n'
+  assert.ok(!acha(t, 'cor-solta', { 'index.html': html }), 'meta theme-color')
+  assert.ok(!acha(t, 'cor-solta', { 'index.html': '<meta content="#fff" name="theme-color">\n' }), 'atributos em outra ordem')
+  assert.ok(!acha(t, 'cor-solta', { 'manifest.js': "export default () => ({\n  background_color: '#fafafa',\n  theme_color: '#fafafa',\n})\n" }), 'manifesto')
+  const viewport = "export const viewport = {\n  themeColor: [\n    { media: '(prefers-color-scheme: light)', color: '#fafafa' },\n    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },\n  ],\n}\n"
+  assert.ok(!acha(t, 'cor-solta', { 'layout.js': viewport }), 'themeColor em lista')
+  assert.ok(!acha(t, 'cor-solta', { 'layout.js': "export const viewport = { themeColor: '#111111' }\n" }), 'themeColor numa linha')
+  // continua valendo fora do theme-color
+  assert.ok(acha(t, 'cor-solta', { 'index.html': '<div style="color: #1C1C1C">x</div>\n' }))
+  assert.ok(acha(t, 'cor-solta', { 'a.js': "const viewport = {\n  themeColor: [],\n}\nconst estilo = { color: '#0a0a0a' }\n" }), 'lista do themeColor já fechou')
+})
