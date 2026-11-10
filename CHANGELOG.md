@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.4.0 (10/11/2026)
+
+- **módulo web novo:** rolagem que não vaza, barra de rolagem, `touch-action`, `user-select` e área
+  segura saíram do módulo pwa. Valem para toda tela web e o SKILL.md manda ler o módulo em qualquer
+  tela no navegador. A N10 do pwa passa a cobrir só o `html` e aponta para a `rolagem-vaza`.
+- **barra de rolagem:** `codigo/rolagem.css`, fina, sem trilho, só aparece com o mouse em cima, com
+  `:hover` dentro de `(hover: hover)` e `scrollbar-gutter: stable` em `.rolagem-estavel`. Teste
+  `npm run rolagem` abre o Chrome sem `--hide-scrollbars` e compara os pixels da barra.
+- **auditor:** `--desde <ref do git>` mostra só o achado novo, casando pela regra e pelo texto da
+  linha; `--estrito` sai com 1 em aviso novo. No Deck: 49 avisos antigos, 0 novos.
+- **auditor:** `cor-solta` deixa de apontar `theme-color` (meta, manifesto, `themeColor` do Next),
+  que não aceita `var()`. O próprio template Next da skill caía no aviso.
+- **testes dos auditores no repo:** `auditor/testes/` e `modulos/pwa/testes/` rodam em qualquer
+  clone com `node --test`. O teste do CLI troca o total fixo da fixture ruim pela contagem de
+  cada regra.
+- **SKILL.md:** protótipo que vai virar PWA conta como PWA, seção de telas de passo e de escolha
+  (centralizar, prévia real, sem checks no fim, permissão pelo nome do sistema), checklist de
+  entrega e tabela de problemas comuns.
+
 ## 1.3.0 (10/11/2026)
 
 - **auditor:** regra nova `rolagem-vaza` (erro). `overflow: auto` ou `scroll` sem
