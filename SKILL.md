@@ -120,6 +120,9 @@ Só consulta de comportamento, sem copiar código. Entram quando o módulo não 
 
 ## Verificar a própria skill
 
+Só na cópia de desenvolvimento: `teste/`, `package.json`, `auditor/testes/` e `modulos/pwa/testes/`
+ficam fora do repo público (o repo leva só a skill).
+
 ```bash
 cd ~/.claude/skills/tatile
 npm install          # uma vez

@@ -15,8 +15,7 @@
     <img src="https://img.shields.io/badge/vers%C3%A3o-1.2.2-1A2740?style=for-the-badge&labelColor=0B1220" alt="versão 1.2.2" />
     <img src="https://img.shields.io/badge/Claude_Code-skill-0B1220?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude Code skill" />
     <img src="https://img.shields.io/badge/TypeScript-CSS-0B1220?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript e CSS" />
-    <img src="https://img.shields.io/badge/Playwright-1.65-0B1220?style=for-the-badge&logo=playwright&logoColor=white" alt="Playwright" />
-    <img src="https://img.shields.io/badge/licen%C3%A7a-MIT-1A2740?style=for-the-badge&labelColor=0B1220" alt="licença MIT" />
+      <img src="https://img.shields.io/badge/licen%C3%A7a-MIT-1A2740?style=for-the-badge&labelColor=0B1220" alt="licença MIT" />
   </p>
 
   <p>
@@ -33,14 +32,13 @@
 <br>
 
 <div align="center">
-  <img src="docs/readme/prototipo-desktop.png" alt="Protótipo de uma tela de pedidos com a tatile aplicada, no desktop" width="70%" />
-  <img src="docs/readme/prototipo-celular.png" alt="A mesma tela no celular" width="25%" />
+  <img src="docs/readme/demo.gif" alt="A mesma tela de pedidos sem e com a tatile, trocando aparelho e tema" width="100%" />
 </div>
 
 ## O que é
 
 ```yaml
-produto:   skill do Claude Code com padrões de interface em módulos, cada um com regra, código e teste
+produto:   skill do Claude Code com padrões de interface em módulos, cada um com regras, valores e código pronto
 quem_usa:  quem constrói sistema, app ou PWA com o Claude Code e quer tela com acabamento
 estado:    1.2.2, usada nos projetos do autor e evoluindo por versão
 ```
@@ -52,7 +50,7 @@ estado:    1.2.2, usada nos projetos do autor e evoluindo por versão
 Tela feita por IA costuma sair com a mesma cara: espaço igual em tudo, gradiente roxo, skeleton que
 não bate com o conteúdo, número que treme, animação que não diz nada. Corrigir isso tela por tela,
 em cada projeto, é repetir as mesmas conversas. A tatile junta essas decisões num lugar só, com os
-valores, o código pronto e um teste que prova que funciona. O agente lê o módulo que a tarefa toca e
+valores e o código pronto, cada módulo testado antes de entrar. O agente lê o módulo que a tarefa toca e
 aplica.
 
 O nome vem de "tátil": a sensação de usar a interface. Pronúncia: ta-TÍ-le.
@@ -83,7 +81,6 @@ SKILL.md                 o agente lê primeiro: módulos, ordem de aplicação, 
 modulos/<nome>/README.md origem, regras numeradas com valores, como aplicar, como provar
 codigo/                  tokens (CSS e TS espelhados), skeleton, estados, movimento, formato
 auditor/                 node auditor/auditar.mjs <pasta-do-projeto>
-teste/                   vitrine, protótipo Sem e Com, demos web e React Native, testes
 ```
 
 Regras que valem em todo módulo:
@@ -102,27 +99,24 @@ Regras que valem em todo módulo:
 | Regras | Markdown lido pelo Claude Code (`SKILL.md` e `modulos/`) |
 | Código | CSS com custom properties, TypeScript sem dependência, hooks React |
 | React Native | `react-native-web` nas demos, `AsyncStorage` ou MMKV no skeleton |
-| Testes | `node --test` com type stripping, Playwright 1.65, esbuild |
 
 ## Rodar local
 
-Usar como skill:
+Instalar como skill do Claude Code:
 
 ```bash
 git clone https://github.com/leonardorejani/tatile ~/.claude/skills/tatile
 ```
 
-Rodar os testes e as demos:
+Pronto. O Claude Code carrega a skill quando a tarefa toca tela, ou quando você cita "tatile".
+Para conferir um projeto contra as regras, sem instalar nada:
 
 ```bash
-cd ~/.claude/skills/tatile
-npm install
-npm run verificar   # build, unidade, auditores, espaçamento, vitrine, skeleton, movimento e protótipo
-npm run demo        # http://localhost:4870/
+node ~/.claude/skills/tatile/auditor/auditar.mjs <pasta-do-projeto>
 ```
 
-Páginas para ver no navegador: `/prototipo/` (tela de app Sem e Com, com aparelho, tema e
-velocidade do servidor), `/vitrine.html` (técnica por técnica), `/movimento/` e `/demo/`.
+Os testes, protótipos e demos que provam cada módulo ficam na cópia de desenvolvimento do autor,
+fora deste repo. Onde um README de módulo cita `teste/`, é essa cópia.
 
 ## Documentação
 
@@ -131,7 +125,7 @@ velocidade do servidor), `/vitrine.html` (técnica por técnica), `/movimento/` 
 | [`SKILL.md`](SKILL.md) | Entrada da skill: módulos, ordem, roteiro de revisão de tela |
 | [`modulos/`](modulos/) | Um README por módulo, com as regras e os valores |
 | [`CHANGELOG.md`](CHANGELOG.md) | O que mudou em cada versão |
-| [`auditor/`](auditor/) | Regras do auditor e os testes |
+| [`auditor/`](auditor/) | Script que confere o projeto e as regras dele |
 
 ## Licença
 
