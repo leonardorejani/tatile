@@ -12,6 +12,13 @@ e teste que prova. A skill evolui por versão (`CHANGELOG.md`): a v1 é a base.
 
 **Versão atual: 1.4.0 (10/11/2026)**
 
+## Quando usar
+
+- Criar ou revisar tela em qualquer plataforma (web, desktop, celular, React Native, PWA), inclusive
+  protótipo que vai virar PWA.
+- Tela que parece apertada, amadora, "de site", ou que pula ao carregar.
+- Rodar o auditor num projeto.
+
 ## Módulos
 
 | Módulo | Para quê | Ler |
@@ -47,13 +54,11 @@ lê o módulo pwa desde o protótipo (o painel do Deck nasceu sem ele e teve que
 5. **Formulários e navegação**: campos, erros, estado na URL.
 6. **Resto do PWA** (manifesto, service worker, instalação, notificações): independe do visual.
 7. **Auditor** no fim: `node ~/.claude/skills/tatile/auditor/auditar.mjs <pasta-do-projeto>`.
-   Projeto que já tem aviso acumulado: `--desde <ref do git>` mostra só o que é novo, e
-   `--estrito` faz o aviso novo também sair com 1 (bom para o `verificar.sh` do projeto).
+   Aviso acumulado: `--desde <ref>` mostra só o novo, `--estrito` falha com aviso novo.
 
 ## O que a tatile não repete (aponta)
 
-Movimento, gesto e teste de pior caso já têm skill própria. A tatile não copia: quando a tarefa
-cair nisso, carregar a skill certa.
+Movimento, gesto e pior caso têm skill própria: carregar a certa.
 
 | Assunto | Skill |
 |---|---|
@@ -77,6 +82,17 @@ Vem do unslop. Serve para tela que já existe e "parece de template".
 3. **No fim, o auditor.**
 4. Tela que já está boa: no máximo 2 ou 3 refinos, sem redesenho (princípio 6).
 5. Lembrar: tela limpa, no mesmo cinza, com Inter, também é template.
+
+## Anti-padrões
+
+| Em vez de | Fazer |
+|---|---|
+| Número ou hex direto na tela | token (`var(--pad)`, `var(--texto)`) |
+| `overflow: auto` solto (vaza no fim, barra grossa com trilho) | classe `.rolagem` (contida, barra fina) |
+| Ler só os módulos de visual numa tela web | ler o web junto, e o pwa se vai virar PWA |
+| Spinner ou "Carregando..." no lugar do conteúdo | skeleton com a forma da última visita |
+| Redesenhar tela que já foi aprovada | 2 ou 3 refinos, e só com pedido |
+| Tela de passos, escolha ou permissão do jeito "de sempre" | seção Telas de passo e de escolha |
 
 ## Regras que valem para todos os módulos
 
@@ -106,7 +122,7 @@ Vem do unslop. Serve para tela que já existe e "parece de template".
 
 ## Telas de passo e de escolha
 
-Preferências do Leonardo que viraram padrão (10/11/2026, configuração inicial do Deck):
+Preferências do Leonardo (10/11/2026, configuração inicial do Deck):
 
 1. **Tela de passos (onboarding, wizard) fica no centro**, na largura e na altura. Lista numerada
    também fica no centro, mas o texto alinha à esquerda, junto do número.
@@ -144,8 +160,7 @@ Antes de dizer que a tela está pronta:
 
 **Prova**
 - [ ] Auditor sem erro, e sem aviso novo com `--desde`.
-- [ ] Print em 390 e 1280 px. Teste que precisa ver barra de rolagem abre com
-      `ignoreDefaultArgs: ['--hide-scrollbars']`.
+- [ ] Print em 390 e 1280 px.
 - [ ] Quem já usava testado com o dado da versão anterior no storage.
 - [ ] O que só o aparelho prova (notificação no iPhone, gesto) dito como pendente.
 
@@ -153,8 +168,6 @@ Antes de dizer que a tela está pronta:
 
 | Sintoma | Causa | O que fazer |
 |---|---|---|
-| Lista chega no fim e a tela inteira anda junto | rolagem encadeada (scroll chaining) | `.rolagem` ou `overscroll-behavior: contain` (módulo web) |
-| Barra de rolagem grossa, com trilho cinza | barra padrão do navegador | `codigo/rolagem.css` |
 | Print do teste não mostra a barra de rolagem | Playwright sem janela usa `--hide-scrollbars` | `chromium.launch({ ignoreDefaultArgs: ['--hide-scrollbars'] })` |
 | Auditor com dezenas de avisos e ninguém olha | aviso antigo acumulado | `--desde <ref>`, e `--estrito` no `verificar.sh` |
 | Cor que precisa ser literal aparece como `cor-solta` | lugar que não aceita `var()` | `theme-color` já fica de fora; outro caso, `tatile-ignorar` na linha |
@@ -165,17 +178,8 @@ Antes de dizer que a tela está pronta:
 
 ## Código compartilhado
 
-- `codigo/espaco.css`, `codigo/espaco.ts`: tokens de espaçamento (celular, tablet, desktop).
-- `codigo/rolagem.css`: área que rola contida, com barra fina que só aparece com o mouse em cima.
-- `codigo/tipo.css`, `codigo/forma.css`, `codigo/cor.css` e `codigo/tokens.ts`: tipografia, raio,
-  sombra e cor (claro e escuro). O `tokens.ts` tem `raioDentro` e `contraste`.
-- `codigo/estados.ts`: `useAtrasoDeCarga`, `useEstadoNaUrl` (com núcleos sem React) e
-  `trocarTemaSemTransicao`.
-- `codigo/formato.ts`: `dinheiro`, `numero`, `tamanho`, `relativo`, `dataHora` em pt-BR, só ASCII nos espaços.
-- `codigo/shape-store.ts`, `codigo/use-adaptive-shape.ts`: núcleo e hook do skeleton.
-- `modulos/pwa/templates/`, `modulos/pwa/scripts/`: modelos e auditor do PWA.
-
-Copiar para o projeto e ajustar. Não importar direto desta pasta.
+Código pronto em `codigo/` e modelos do PWA em `modulos/pwa/templates/`. Cada módulo diz qual
+arquivo usa. Copiar para o projeto e ajustar, não importar desta pasta.
 
 ## Manutenção da skill
 
