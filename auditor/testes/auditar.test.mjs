@@ -336,3 +336,41 @@ test('cor-solta: theme-color não conta (meta, manifesto e viewport do Next não
   assert.ok(acha(t, 'cor-solta', { 'index.html': '<div style="color: #1C1C1C">x</div>\n' }))
   assert.ok(acha(t, 'cor-solta', { 'a.js': "const viewport = {\n  themeColor: [],\n}\nconst estilo = { color: '#0a0a0a' }\n" }), 'lista do themeColor já fechou')
 })
+
+test('CLI --desde: só o que é novo desde o ref; --estrito falha com aviso novo', t => {
+  const pasta = projeto(t, { 'a.css': '.a { padding: 13px }\n.b { color: red }\n' })
+  const git = (...a) => spawnSync('git', ['-C', pasta, ...a], { encoding: 'utf8' })
+  git('init', '-q'); git('add', '.')
+  git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'base')
+  const cli = (...a) => spawnSync('node', [SCRIPT, pasta, ...a], { encoding: 'utf8' })
+
+  // linha antiga mudou de número (entrou uma em cima) e entrou um aviso novo em outro arquivo
+  writeFileSync(join(pasta, 'a.css'), '.z { display: block }\n.a { padding: 13px }\n.b { color: red }\n')
+  writeFileSync(join(pasta, 'novo.css'), '.c { margin: 7px }\n')
+  const r = cli('--desde', 'HEAD')
+  assert.equal(r.status, 0)
+  const linhas = r.stdout.trim().split('\n')
+  assert.equal(linhas.length, 2, r.stdout)
+  assert.match(linhas[0], /^aviso {2}novo\.css:1 {2}espaco-solto/)
+  assert.match(linhas[1], /^2 arquivos, 0 erros, 1 avisos novos desde HEAD \(1 antigos fora da lista\)$/)
+  assert.equal(cli('--desde=HEAD', '--estrito').status, 1, 'aviso novo com --estrito')
+  assert.equal(cli('--estrito').status, 1, '--estrito sem --desde conta todos os avisos')
+
+  // a mesma linha repetida: a cópia é nova
+  writeFileSync(join(pasta, 'a.css'), '.a { padding: 13px }\n.a { padding: 13px }\n')
+  const j = JSON.parse(cli('--desde', 'HEAD', '--json').stdout)
+  assert.deepEqual(j.achados.map(a => `${a.arquivo}:${a.linha}`), ['a.css:2', 'novo.css:1'])
+  assert.equal(j.antigos, 1)
+
+  // erro novo sai com 1 mesmo sem --estrito
+  writeFileSync(join(pasta, 'novo.css'), '.c { overflow: auto }\n')
+  assert.equal(cli('--desde', 'HEAD').status, 1)
+
+  // tudo igual ao ref: nada a mostrar
+  git('checkout', '-q', '--', 'a.css'); rmSync(join(pasta, 'novo.css'))
+  assert.equal(cli('--desde', 'HEAD', '--estrito').status, 0)
+
+  assert.equal(cli('--desde', 'ref-que-nao-existe').status, 2)
+  assert.equal(cli('--desde').status, 2, '--desde sem ref')
+  assert.equal(spawnSync('node', [SCRIPT, projeto(t, { 'a.css': '' }), '--desde', 'HEAD']).status, 2, 'fora de repo git')
+})

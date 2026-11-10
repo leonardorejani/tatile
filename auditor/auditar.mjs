@@ -3,11 +3,13 @@
 // (espaço, cor, raio, zoom, colar, foco, número, campo, gradiente, brilho, emoji, rótulo em caixa
 // alta, movimento, texto de propaganda, hover) são quebradas, sem rede e sem dependência.
 //
-// Uso: node auditar.mjs <pasta> [--json]
-// Saída: 0 sem erro; 1 com achado de severidade erro; 2 uso errado.
+// Uso: node auditar.mjs <pasta> [--json] [--desde <ref do git>] [--estrito]
+// Saída: 0 sem erro; 1 com achado de severidade erro (com --estrito, aviso também); 2 uso errado.
+// --desde mostra só o que é novo em relação àquele commit: aviso antigo acumulado deixa de ser ruído.
 // Silenciar uma linha: comentário tatile-ignorar na mesma linha.
 
 import { lstatSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { REGRAS } from './regras.mjs'
@@ -146,12 +148,51 @@ export function auditar(pasta) {
   return { arquivos: arquivos.length, achados }
 }
 
-const AJUDA = 'uso: node auditar.mjs <pasta> [--json]\nsaída: 0 sem erro, 1 com erro, 2 uso errado'
+// Só o que é novo desde <ref>: o mesmo arquivo é auditado como estava naquele commit e cada achado
+// antigo cancela um atual da mesma regra na mesma linha de texto (a linha pode ter mudado de número).
+// Arquivo que não existia no ref: tudo nele é novo. Devolve null quando não é repo git ou o ref não existe.
+export function novosDesde(pasta, r, ref) {
+  const raiz = resolve(pasta)
+  const git = (...a) => spawnSync('git', ['-C', raiz, ...a], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  // --show-prefix e não --show-toplevel: no macOS /var é link para /private/var e o relative() erra
+  const prefixo = git('rev-parse', '--show-prefix')
+  if (prefixo.status !== 0 || git('rev-parse', '--verify', '--quiet', `${ref}^{commit}`).status !== 0) return null
+  const chave = (a, linhas) => `${a.regra}|${(linhas[a.linha - 1] ?? '').trim()}`
+  const porArquivo = new Map()
+  for (const a of r.achados) porArquivo.set(a.arquivo, [...(porArquivo.get(a.arquivo) ?? []), a])
+  const novos = []
+  for (const [arquivo, achados] of porArquivo) {
+    const antes = git('show', `${ref}:${prefixo.stdout.trim()}${arquivo}`)
+    if (antes.status !== 0) { novos.push(...achados); continue }
+    const velhas = antes.stdout.split('\n')
+    const sobra = new Map()
+    for (const a of analisarArquivo(arquivo, antes.stdout, opcoesDoProjeto(raiz))) {
+      const k = chave(a, velhas)
+      sobra.set(k, (sobra.get(k) ?? 0) + 1)
+    }
+    const atuais = readFileSync(join(raiz, arquivo), 'utf8').split('\n')
+    for (const a of achados) {
+      const k = chave(a, atuais)
+      if (sobra.get(k) > 0) sobra.set(k, sobra.get(k) - 1)
+      else novos.push(a)
+    }
+  }
+  return { ...r, achados: novos, desde: ref, antigos: r.achados.length - novos.length }
+}
+
+const AJUDA = 'uso: node auditar.mjs <pasta> [--json] [--desde <ref do git>] [--estrito]\nsaída: 0 sem erro, 1 com erro (com --estrito, aviso também), 2 uso errado'
 
 function principal(args) {
-  const opcoes = args.filter(a => a.startsWith('-'))
-  const desconhecidas = opcoes.filter(o => o !== '--json')
-  const pastas = args.filter(a => !a.startsWith('-'))
+  const opcoes = new Set(), pastas = [], desconhecidas = []
+  let desde = null
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i]
+    if (a === '--desde') { desde = args[++i] ?? ''; if (!desde || desde.startsWith('-')) desconhecidas.push('--desde sem ref') }
+    else if (a.startsWith('--desde=')) desde = a.slice(8)
+    else if (a === '--json' || a === '--estrito') opcoes.add(a)
+    else if (a.startsWith('-')) desconhecidas.push(a)
+    else pastas.push(a)
+  }
   if (desconhecidas.length || pastas.length !== 1) {
     console.error(`${desconhecidas.length ? `opção desconhecida ${desconhecidas.join(' ')}` : 'informe uma pasta'}\n${AJUDA}`)
     return 2
@@ -160,14 +201,19 @@ function principal(args) {
     console.error(`pasta não existe: ${pastas[0]}\n${AJUDA}`)
     return 2
   }
-  const r = auditar(pastas[0])
-  if (opcoes.includes('--json')) console.log(JSON.stringify(r, null, 2))
+  let r = auditar(pastas[0])
+  if (desde) {
+    r = novosDesde(pastas[0], r, desde)
+    if (!r) { console.error(`--desde precisa de repo git e de um ref que exista: ${desde}\n${AJUDA}`); return 2 }
+  }
+  const por = s => r.achados.filter(a => a.severidade === s).length
+  if (opcoes.has('--json')) console.log(JSON.stringify(r, null, 2))
   else {
     for (const a of r.achados) console.log(`${a.severidade}  ${a.arquivo}:${a.linha}  ${a.regra}  ${a.mensagem}`)
-    const por = s => r.achados.filter(a => a.severidade === s).length
-    console.log(`${r.arquivos} arquivos, ${por('erro')} erros, ${por('aviso')} avisos`)
+    const resumo = `${r.arquivos} arquivos, ${por('erro')} erros, ${por('aviso')} avisos`
+    console.log(desde ? `${resumo} novos desde ${desde} (${r.antigos} antigos fora da lista)` : resumo)
   }
-  return r.achados.some(a => a.severidade === 'erro') ? 1 : 0
+  return por('erro') || (opcoes.has('--estrito') && por('aviso')) ? 1 : 0
 }
 
 // statSync segue link simbólico: link para pasta também vale como pasta
