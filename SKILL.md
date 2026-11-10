@@ -81,7 +81,7 @@ Vem do unslop. Serve para tela que já existe e "parece de template".
    texto, tipo, layout, detalhe, imagem, movimento.
 3. **No fim, o auditor.**
 4. Tela que já está boa: no máximo 2 ou 3 refinos, sem redesenho (princípio 6).
-5. Lembrar: tela limpa, no mesmo cinza, com Inter, também é template.
+5. Tela limpa, no mesmo cinza, com Inter, também é template.
 
 ## Anti-padrões
 
@@ -122,7 +122,7 @@ Vem do unslop. Serve para tela que já existe e "parece de template".
 
 ## Telas de passo e de escolha
 
-Preferências do Leonardo (10/11/2026, configuração inicial do Deck):
+Preferências do Leonardo (10/11/2026). Antes e depois reais em `exemplos/deck.md`:
 
 1. **Tela de passos (onboarding, wizard) fica no centro**, na largura e na altura. Lista numerada
    também fica no centro, mas o texto alinha à esquerda, junto do número.
