@@ -1,0 +1,12 @@
+.card {
+  padding: 13px;
+  margin: 0 auto 0.5rem;
+  color: #ff0000;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  outline: none;
+}
+
+input {
+  font-size: 14px;
+}

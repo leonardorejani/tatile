@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tatile: vitrine</title>
+<link rel="stylesheet" href="../codigo/cor.css">
+<style>
+:root{
+  --bg:#FFFFFF;--surface:#F7F7F7;--surface-2:#EFEFEF;--border:#E2E2E2;
+  --text:#161616;--muted:#5E5E5E;
+  --accent:#1F7475;--accent-contrast:#FFFFFF;--accent-soft:#E6F2F2;--accent-ring:rgba(31,116,117,.35);
+  --success:#1F7A4D;--success-soft:#E6F4EC;--warn:#A15C00;--danger:#B42318;
+  --r-sm:6px;--r:8px;--r-lg:12px;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;
+  --fonte:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#1C1C1C;--surface:#242424;--surface-2:#2E2E2E;--border:#383838;
+  --text:#EDEDED;--muted:#A3A3A3;
+  --accent:#5EBDB3;--accent-contrast:#0F1F1F;--accent-soft:#1E3333;--accent-ring:rgba(94,189,179,.35);
+  --success:#5FD49B;--success-soft:#16291F;--warn:#E8B95B;--danger:#F09090;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 var(--fonte);-webkit-font-smoothing:antialiased}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);height:40px;padding:0 var(--s4);border-radius:var(--r);border:1px solid transparent;font:600 14px/1 var(--fonte);cursor:pointer;white-space:nowrap;transition:filter .12s,background .12s}
+.btn:focus-visible,.op input:focus-visible{outline:none;box-shadow:0 0 0 3px var(--accent-ring)}
+.btn-primary{background:var(--accent);color:var(--accent-contrast)}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border)}
+.btn-secondary:hover{background:var(--surface-2)}
+.btn-sm{height:32px;padding:0 var(--s3);font-size:13px}
+
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border)}
+.cab{max-width:1080px;margin:0 auto;padding:var(--s3) var(--s4);display:flex;align-items:center;gap:var(--s4);justify-content:space-between}
+.cab h1{margin:0;font-size:19px;letter-spacing:-.02em;font-weight:700}
+.cab p{margin:0;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.acoes{display:flex;gap:var(--s2);align-items:center}
+#okmsg{font-size:13px;color:var(--success)}
+main{max-width:1080px;margin:0 auto;padding:var(--s5) var(--s4) 96px}
+.intro{color:var(--muted);font-size:14px;margin:0 0 var(--s5)}
+.frente{margin-top:var(--s6)}
+.frente>h2{font-size:23px;font-weight:700;letter-spacing:-.02em;margin:0 0 var(--s4)}
+
+.item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-bottom:var(--s5)}
+.item-topo{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.item h3{margin:0;font-size:19px;font-weight:650;letter-spacing:-.01em}
+.selo{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:99px}
+.selo-rec{background:var(--success-soft);color:var(--success)}
+.selo-ouro{background:#FFF4D6;color:#8A5A00}
+@media (prefers-color-scheme: dark){.selo-ouro{background:#3A2E12;color:#E8B95B}}
+.por{color:var(--muted);font-size:14px;margin:var(--s2) 0 var(--s4)}
+.fonte{font-size:12px;color:var(--muted)}
+
+/* palco das demos: sempre claro, para comparar igual nos dois temas */
+.demo{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.lado{border:1px solid var(--border);border-radius:var(--r);background:#fff;color:#15181d;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.lado>b{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid #eee;color:#8a8f98}
+.lado.depois>b{color:#1F7A4D;background:#F2FAF5}
+.palco{padding:16px;flex:1;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:10px;position:relative;font-size:15px}
+.unica{grid-template-columns:1fr}
+.ctl{display:flex;gap:6px;flex-wrap:wrap}
+.ctl button{font:600 13px var(--fonte);height:32px;padding:0 12px;border-radius:8px;border:1px solid #ddd;background:#f6f7f9;color:#15181d;cursor:pointer}
+
+.ops{display:flex;gap:var(--s2);flex-wrap:wrap;margin-top:var(--s4)}
+.op{display:flex;align-items:center;gap:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;background:var(--bg);font-size:14px;flex:1 1 200px}
+.op input{accent-color:var(--accent);margin:0}
+.op:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.op.mudou:has(input:checked){border-color:var(--warn)}
+.campo{margin-top:var(--s3);border:1px solid var(--border);border-radius:var(--r);background:var(--bg)}
+.campo:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ring)}
+.campo.arrastando{border-style:dashed;border-color:var(--accent)}
+.campo textarea{width:100%;min-height:44px;border:0;background:transparent;color:var(--text);font:14px/1.5 var(--fonte);padding:10px 12px;resize:vertical;outline:none}
+.minis{display:flex;gap:var(--s2);flex-wrap:wrap;padding:0 12px}
+.minis:empty{display:none}
+.mini{position:relative;width:72px;height:72px}
+.mini img{width:100%;height:100%;object-fit:cover;border-radius:var(--r-sm)}
+.mini button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:0;background:var(--danger);color:#fff;font-size:12px;cursor:pointer}
+.dica{font-size:12px;color:var(--muted);padding:4px 12px 8px}
+
+@media (max-width:640px){
+  .cab{flex-wrap:wrap}
+  .demo{grid-template-columns:1fr}
+  .item{padding:14px}
+  .mini{width:60px;height:60px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- estilos das demos ---- */
+.d-num{font-size:28px;font-weight:700;text-align:right;letter-spacing:-.01em}
+.d-tit{font-size:20px;font-weight:700;line-height:1.25;width:340px;max-width:100%;margin:0}
+.d-par{font-size:14px;line-height:1.5;width:340px;max-width:100%;margin:0;color:#4b5260}
+.d-card{border-radius:20px;padding:12px;background:#f1f3f6}
+.d-img{height:80px;background:linear-gradient(135deg,#60a5fa,#2563eb)}
+.d-sombra{border-radius:14px;padding:14px;background:#fff}
+.d-play{width:64px;height:64px;border-radius:50%;background:#15181d;display:grid;place-items:center;margin:0 auto}
+.d-play svg{width:22px;height:22px;fill:#fff}
+.d-banner{border-radius:12px;padding:14px;background:#2563eb}
+.d-banner strong{color:#fff;display:block}
+.sk{background:#e3e6eb;border-radius:6px;animation:pulso 1.2s ease-in-out infinite}
+@keyframes pulso{50%{opacity:.55}}
+.d-lista{display:flex;flex-direction:column;gap:6px}
+.d-linha{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:#f6f7f9;font-size:14px}
+.d-linha button,.d-mini-btn{font:600 12px var(--fonte);border:0;background:#fde8e8;color:#b42318;border-radius:6px;padding:4px 8px;cursor:pointer}
+.d-toast{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:#15181d;color:#fff;font-size:13px;border-radius:10px;padding:8px 12px;display:flex;gap:12px;align-items:center;white-space:nowrap}
+.d-toast button{background:none;border:0;color:#7cc4ff;font:600 13px var(--fonte);cursor:pointer}
+.d-vazio{text-align:center;color:#5d6673;font-size:14px}
+.d-vazio .ic{width:44px;height:44px;border-radius:12px;background:#eef3fe;display:grid;place-items:center;margin:0 auto 8px;color:#2563eb;font-weight:700}
+.d-input{width:100%;height:40px;border:1px solid #d6d9de;border-radius:8px;padding:0 10px;font:16px var(--fonte);color:#15181d;background:#fff}
+.d-input.erro{border-color:#b42318}
+.d-erro{font-size:12px;color:#b42318}
+.d-url{font:12px ui-monospace,Menlo,monospace;background:#f1f3f6;border-radius:6px;padding:6px 8px;color:#4b5260;word-break:break-all}
+.d-abas{display:flex;gap:4px}
+.d-abas button{font:600 13px var(--fonte);height:32px;padding:0 10px;border:0;border-radius:8px;background:#f1f3f6;color:#4b5260;cursor:pointer}
+.d-abas button.on{background:#15181d;color:#fff}
+.d-alvo{position:relative;display:inline-grid;place-items:center;width:16px;height:16px;margin:14px auto;color:#15181d}
+.d-alvo::after{content:"";position:absolute;inset:var(--h,0);border:1.5px dashed #e2457a;border-radius:8px;background:rgba(226,69,122,.08)}
+.d-menu{border:1px solid #e3e6eb;border-radius:10px;padding:4px;width:180px;margin:0 auto;box-shadow:0 8px 24px -10px rgba(0,0,0,.25)}
+.d-menu div{padding:8px 10px;border-radius:6px;font-size:14px;cursor:pointer}
+.d-menu div:hover{background:#f1f3f6}
+/* pisca UMA vez, na cor de destaque do app (token), antes do menu fechar */
+.d-menu div.pisca{animation:pisca .32s ease-out 1}
+@keyframes pisca{0%,55%{background:var(--destaque);color:var(--destaque-texto)}100%{background:transparent;color:inherit}}
+.d-term{font:12px/1.6 ui-monospace,Menlo,monospace;background:#15181d;color:#d6d9de;border-radius:8px;padding:12px;white-space:pre;overflow:auto}
+.d-diag{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;font-size:13px}
+.d-diag span{border:1px solid #d6d9de;border-radius:8px;padding:6px 10px;background:#f6f7f9}
+.d-diag span.c{background:#15181d;color:#fff;border-color:#15181d}
+.d-tema{border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:background .25s,color .25s}
+.d-segurar{position:relative;overflow:hidden;font:600 14px var(--fonte);height:40px;border-radius:10px;border:0;background:#fde8e8;color:#b42318;cursor:pointer;padding:0 16px}
+.d-segurar i{position:absolute;inset:0;width:0;background:rgba(180,35,24,.18);transition:width 0s}
+.d-segurar.segurando i{width:100%;transition:width 1s linear}
+</style>
+</head>
+<body>
+<header>
+  <div class="cab">
+    <div>
+      <h1 id="titulo"></h1>
+      <p id="prog"></p>
+    </div>
+
+  </div>
+</header>
+<main>
+  <p class="intro">Referência viva da tatile 1.1. Cada técnica roda Antes e Depois. O código de cada uma está no módulo indicado.</p>
+  <div id="raiz"></div>
+  <textarea id="saida" hidden></textarea>
+</main>
+
+<script>
+const TITULO = 'Tatile: vitrine'
+const MODULO = { escala: 'tipografia', tabular: 'tipografia', balance: 'tipografia', raio: 'forma', sombra: 'forma', optico: 'forma', tokens: 'cor', scheme: 'cor', tingido: 'cor', atraso: 'estados', otimista: 'estados', destrutivo: 'estados', vazio: 'estados', campos: 'formularios', envio: 'formularios', url: 'navegacao', hit: 'navegacao', menu: 'navegacao', apontar: 'SKILL.md', auditor: 'auditor' }
+const SO_DECISAO = ['chars', 'x'] // eram so escolha, sem tecnica para mostrar
+const PADRAO = [['agora', 'Aprovo, entra na 1.1'], ['depois', 'Fica pra depois'], ['nao', 'Não quero']]
+const lado = (rot, html, cls = '') => `<div class="lado ${rot === 'Depois' ? 'depois' : ''}"><b>${rot}</b><div class="palco ${cls}">${html}</div></div>`
+const par = (a, d) => `<div class="demo">${lado('Antes', a)}${lado('Depois', d)}</div>`
+const unica = (html, rot = 'Como fica') => `<div class="demo unica">${lado(rot, html)}</div>`
+const play = '<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>'
+
+const FRENTES = [
+{ titulo: 'Tipografia', itens: [
+  { id: 'escala', t: 'Escala de tipo em tokens', ouro: false, fonte: 'Vercel, Jakub Krehel',
+    por: 'Tamanhos saem de uma escala só (28, 17, 15, 13), igual ao espaco.css. Hoje cada tela escolhe na mão.',
+    demo: () => par(
+      `<div style="font-size:22px;font-weight:700">Pedidos de hoje</div><div style="font-size:16.5px;font-weight:600">Pedido #1042</div><div style="font-size:13.5px;color:#666">3 itens · Pix</div><div style="font-size:11px;color:#999">atualizado agora</div>`,
+      `<div style="font-size:28px;font-weight:700;letter-spacing:-.02em">Pedidos de hoje</div><div style="font-size:17px;font-weight:600">Pedido #1042</div><div style="font-size:15px;color:#4b5260">3 itens · Pix</div><div style="font-size:13px;color:#8a8f98">atualizado agora</div>`) },
+  { id: 'tabular', t: 'Número que muda usa tabular-nums', ouro: true, fonte: 'Jakub Krehel, Vercel',
+    por: 'Todo dígito com a mesma largura. Contador, preço e tabela param de tremer quando o valor muda.',
+    demo: () => par(`<div class="d-num" data-conta style="font-variant-numeric:proportional-nums">R$ 0,00</div><div class="d-num" data-relogio style="font-variant-numeric:proportional-nums;font-size:20px">00:00:00</div>`,
+      `<div class="d-num" data-conta style="font-variant-numeric:tabular-nums">R$ 0,00</div><div class="d-num" data-relogio style="font-variant-numeric:tabular-nums;font-size:20px">00:00:00</div>`) },
+  { id: 'balance', t: 'Título equilibrado e parágrafo sem palavra sozinha', ouro: true, fonte: 'Jakub Krehel',
+    por: 'text-wrap: balance divide o título em linhas do mesmo tamanho. text-wrap: pretty evita a última linha com uma palavra só.',
+    demo: () => par(
+      `<p class="d-tit">Novo painel de pedidos com filtros salvos</p><p class="d-par">Revise as tarefas abertas, confirme quem cuida de cada entrega e avise o time no canal.</p>`,
+      `<p class="d-tit" style="text-wrap:balance">Novo painel de pedidos com filtros salvos</p><p class="d-par" style="text-wrap:pretty">Revise as tarefas abertas, confirme quem cuida de cada entrega e avise o time no canal.</p>`) },
+  { id: 'chars', t: 'Caracteres tipográficos na interface', ouro: false, fonte: 'Vercel',
+    por: 'Conflito com a sua regra global de ASCII. Veja a diferença: reticências e o espaço que não deixa "10 MB" quebrar no meio.',
+    ops: [['ascii', 'Mantém ASCII (sua regra vence)'], ['so-nbsp', 'Só o espaço que não quebra entre número e unidade'], ['tipografico', 'Usa os caracteres tipográficos na interface']], rec: 'ascii',
+    demo: () => par(
+      `<div>Carregando...</div><div style="width:150px;border:1px dashed #ccc;padding:4px">Arquivo enviado de 10 MB</div>`,
+      `<div>Carregando…</div><div style="width:150px;border:1px dashed #ccc;padding:4px">Arquivo enviado de 10&nbsp;MB</div>`) }
+]},
+{ titulo: 'Forma e profundidade', itens: [
+  { id: 'raio', t: 'Raio concêntrico', ouro: true, fonte: 'Jakub Krehel, Vercel',
+    por: 'O raio de dentro é o de fora menos o padding. Raio igual por dentro e por fora deixa o canto torto.',
+    demo: () => par(`<div class="d-card"><div class="d-img" style="border-radius:20px"></div></div><small style="color:#8a8f98">fora 20, dentro 20</small>`,
+      `<div class="d-card"><div class="d-img" style="border-radius:8px"></div></div><small style="color:#8a8f98">fora 20, dentro 20 - 12 = 8</small>`) },
+  { id: 'sombra', t: 'Sombra em camadas no lugar de borda, e contorno sutil em imagem', ouro: false, fonte: 'Jakub Krehel',
+    por: 'A sombra se ajusta ao fundo e dá profundidade sem a linha cinza dura. A imagem ganha uma borda de 1px a 10%.',
+    demo: () => `<div class="demo">${lado('Antes', `<div style="background:#eef1f4;padding:14px;border-radius:10px"><div class="d-sombra" style="border:1px solid #cfd4db"><strong>Pedido #1042</strong><div style="font-size:13px;color:#666">3 itens</div></div></div>`)}${lado('Depois', `<div style="background:#eef1f4;padding:14px;border-radius:10px"><div class="d-sombra" style="box-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.06),0 4px 12px -2px rgba(0,0,0,.08)"><strong>Pedido #1042</strong><div style="font-size:13px;color:#666">3 itens</div></div></div>`)}</div>` },
+  { id: 'optico', t: 'Alinhamento óptico', ouro: false, fonte: 'Jakub Krehel, Vercel',
+    por: 'O triângulo centralizado pela geometria parece puxado pra esquerda. Um ajuste de 2px resolve.',
+    demo: () => par(`<div class="d-play">${play}</div>`, `<div class="d-play"><span style="display:grid;transform:translateX(2px)">${play}</span></div>`) }
+]},
+{ titulo: 'Cor e tema escuro', itens: [
+  { id: 'tokens', t: 'Tokens de cor semânticos, claro e escuro', ouro: false, fonte: 'Vercel',
+    por: 'Componente nunca usa cor solta. Trocando o tema, tudo acompanha. Toque em "Escuro" e veja o que sobra branco no Antes.',
+    demo: () => `<div class="ctl" style="margin-bottom:8px"><button data-tema="claro">Claro</button><button data-tema="escuro">Escuro</button></div>` + par(
+      `<div class="d-tema" data-tema-alvo="solto" style="background:#f6f7f9"><div style="background:#fff;border-radius:10px;padding:10px;color:#15181d"><strong>Pedido #1042</strong><div style="color:#666;font-size:13px">3 itens · Pix</div></div></div>`,
+      `<div class="d-tema" data-tema-alvo="token" style="--t-bg:#f6f7f9;--t-card:#fff;--t-tx:#15181d;--t-tx2:#5d6673;background:var(--t-bg)"><div style="background:var(--t-card);border-radius:10px;padding:10px;color:var(--t-tx);transition:background .25s,color .25s"><strong>Pedido #1042</strong><div style="color:var(--t-tx2);font-size:13px">3 itens · Pix</div></div></div>`) },
+  { id: 'scheme', t: 'color-scheme e theme-color certos no escuro', ouro: true, fonte: 'Vercel',
+    por: 'Sem isso, no tema escuro o campo nativo e a barra de rolagem ficam claros, e a barra do celular destoa.',
+    demo: () => par(
+      `<div style="background:#1c1c1c;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px"><select style="font:15px var(--fonte)"><option>Pix</option><option>Cartão</option></select><div style="height:60px;overflow:auto;color:#ddd;font-size:13px">Linha 1<br>Linha 2<br>Linha 3<br>Linha 4<br>Linha 5</div></div>`,
+      `<div style="background:#1c1c1c;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;color-scheme:dark"><select style="font:15px var(--fonte)"><option>Pix</option><option>Cartão</option></select><div style="height:60px;overflow:auto;color:#ddd;font-size:13px">Linha 1<br>Linha 2<br>Linha 3<br>Linha 4<br>Linha 5</div></div>`) },
+  { id: 'tingido', t: 'Cinza tingido sobre fundo colorido', ouro: false, fonte: 'Steve Schoger (lido por resumo)', rec: 'depois',
+    por: 'Cinza puro sobre azul fica sujo. O texto de apoio puxa o matiz do fundo.',
+    demo: () => par(`<div class="d-banner"><strong>Promoção de fim de ano</strong><span style="color:#9ca3af;font-size:14px">48 de 60 pedidos · faltam 15 dias</span></div>`,
+      `<div class="d-banner"><strong>Promoção de fim de ano</strong><span style="color:#c7dafe;font-size:14px">48 de 60 pedidos · faltam 15 dias</span></div>`) }
+]},
+{ titulo: 'Estados e feedback', itens: [
+  { id: 'atraso', t: 'Skeleton só aparece se demorar, e não some num piscar', ouro: true, fonte: 'Vercel',
+    por: 'Espera 200 ms antes de mostrar e, se mostrou, fica no mínimo 400 ms. Toque em "Rápido" várias vezes: o Antes pisca, o Depois não.',
+    demo: () => `<div class="ctl" style="margin-bottom:8px"><button data-busca="120">Rápido (120 ms)</button><button data-busca="1200">Lento (1,2 s)</button></div>` + par(`<div data-carga="antes" style="min-height:70px"></div>`, `<div data-carga="depois" style="min-height:70px"></div>`) },
+  { id: 'otimista', t: 'UI otimista com Desfazer', ouro: false, fonte: 'Vercel',
+    por: 'A tela muda na hora e aparece "Desfazer". Se o servidor falhar, volta sozinha e avisa.',
+    demo: () => par(`<div class="d-lista" data-lista="antes"></div>`, `<div class="d-lista" data-lista="depois"></div>`) },
+  { id: 'destrutivo', t: 'Ação perigosa: segurar para confirmar', ouro: false, fonte: 'Rauno Freiberg, Vercel',
+    por: 'Ação leve dispara no toque. Ação perigosa só depois de segurar, ou com Desfazer. Teste segurar e soltar antes de completar.',
+    demo: () => par(`<button class="d-mini-btn" data-perigo="antes" style="height:40px;font-size:14px;padding:0 16px">Excluir projeto</button><small data-msg="antes" style="color:#8a8f98"></small>`,
+      `<button class="d-segurar" data-perigo="depois"><i></i><span style="position:relative">Segure para excluir</span></button><small data-msg="depois" style="color:#8a8f98"></small>`) },
+  { id: 'vazio', t: 'Tela de vazio e de erro com próxima ação', ouro: false, fonte: 'Vercel',
+    por: 'Nunca tela em branco nem "algo deu errado" sem saída.',
+    demo: () => par(`<div class="d-vazio">Nenhum dado.</div><div class="d-vazio" style="color:#b42318">Erro.</div>`,
+      `<div class="d-vazio"><div class="ic">+</div><strong style="color:#15181d">Nenhum pedido ainda</strong><div>Os pedidos aparecem aqui assim que chegarem.</div></div><div class="d-vazio" style="font-size:13px">Não deu pra carregar. <a href="#" onclick="return false" style="color:#2563eb">Tentar de novo</a></div>`) }
+]},
+{ titulo: 'Formulários', itens: [
+  { id: 'campos', t: 'Colar liberado e teclado certo', ouro: false, fonte: 'Vercel',
+    por: 'Nunca bloquear colar. type, autocomplete e spellcheck certos fazem o celular abrir o teclado de e-mail e sugerir o endereço.',
+    demo: () => par(`<input class="d-input" data-bloqueia placeholder="seu e-mail" type="text"><small data-msg="colar" style="color:#8a8f98">tente colar aqui</small>`,
+      `<input class="d-input" type="email" autocomplete="email" spellcheck="false" placeholder="voce@empresa.com…"><small style="color:#8a8f98">colar funciona, teclado de e-mail no celular</small>`) },
+  { id: 'envio', t: 'Erro do lado do campo e foco no primeiro inválido', ouro: false, fonte: 'Vercel',
+    por: 'O botão fica liberado até enviar. O erro aparece embaixo do campo dizendo como corrigir, com o foco nele.',
+    demo: () => par(`<div style="font-size:13px;color:#b42318;background:#fde8e8;padding:6px 8px;border-radius:6px">Erro no formulário.</div><input class="d-input" value="voce@empresa"><button class="d-mini-btn" style="opacity:.45;height:36px;background:#e8ebf0;color:#15181d" disabled>Enviar</button>`,
+      `<input class="d-input erro" value="voce@empresa"><span class="d-erro">Falta o final do e-mail, por exemplo voce@empresa.com</span><button class="d-mini-btn" style="height:36px;background:#15181d;color:#fff">Enviar</button>`) }
+]},
+{ titulo: 'Navegação e toque', itens: [
+  { id: 'url', t: 'Estado da tela na URL', ouro: true, fonte: 'Vercel',
+    por: 'Filtro, aba e página aberta vão pro endereço. Recarregar, voltar e compartilhar abrem na mesma tela. Troque a aba e olhe o endereço.',
+    demo: () => par(`<div class="d-abas" data-abas="antes"><button class="on">Todos</button><button>Pagos</button><button>Enviados</button></div><div class="d-url" data-url="antes">acme.app/pedidos</div>`,
+      `<div class="d-abas" data-abas="depois"><button class="on">Todos</button><button>Pagos</button><button>Enviados</button></div><div class="d-url" data-url="depois">acme.app/pedidos?aba=todos</div>`) },
+  { id: 'hit', t: 'Área de toque maior que o ícone', ouro: false, fonte: 'Vercel',
+    por: 'O ícone pode ser pequeno, a área de toque não: 24px no desktop, 44px no celular. A área tracejada é onde o dedo acerta.',
+    demo: () => par(`<span class="d-alvo" style="--h:0">✕</span><small style="color:#8a8f98;text-align:center">área de 16px</small>`, `<span class="d-alvo" style="--h:-14px">✕</span><small style="color:#8a8f98;text-align:center">área de 44px, ícone igual</small>`) },
+  { id: 'menu', t: 'Item de menu pisca ao ser escolhido', ouro: false, fonte: 'Rauno Freiberg', rec: 'depois',
+    por: 'Confirma a escolha antes do menu fechar. Clique num item dos dois lados.',
+    demo: () => par(`<div class="d-menu" data-menu="antes"><div>Duplicar</div><div>Arquivar</div><div>Compartilhar</div></div><small data-msg="menu-antes" style="color:#8a8f98;text-align:center"></small>`,
+      `<div class="d-menu" data-menu="depois"><div>Duplicar</div><div>Arquivar</div><div>Compartilhar</div></div><small data-msg="menu-depois" style="color:#8a8f98;text-align:center"></small>`) }
+]},
+{ titulo: 'Como a tatile cresce', itens: [
+  { id: 'apontar', t: 'Movimento e teste de pior caso: apontar pras skills que você já tem', ouro: false, fonte: 'suas skills instaladas',
+    por: 'emil-design-eng, apple-design, animate, mobile-native e break-ui já cobrem isso. Copiar cria duas fontes da verdade.',
+    ops: [['apontar', 'Tatile aponta pra elas, sem copiar'], ['copiar', 'Copia o essencial pra dentro da tatile'], ['ignorar', 'Deixa separado como está']], rec: 'apontar',
+    demo: () => unica(`<div class="d-diag"><span class="c">tatile</span><span>→ animação: emil-design-eng, animate</span><span>→ gesto e mola: apple-design</span><span>→ web no celular: mobile-native</span><span>→ pior caso: break-ui</span></div>`) },
+  { id: 'auditor', t: 'Auditor da tatile', ouro: false, fonte: 'mesmo modelo do auditor do PWA',
+    por: 'Script que lê o código do projeto e aponta onde a regra foi quebrada. É o que garante a tatile fora da demo.',
+    demo: () => unica(`<div class="d-term">$ node tatile/auditar.mjs ~/Projetos/meu-app
+erro  src/Pedido.tsx:42    padding: 13px solto, usar var(--pad)
+erro  src/Card.tsx:8       cor #2563eb solta, usar var(--destaque)
+aviso src/Card.tsx:15      raio 16 dentro de raio 16, usar 16 - padding
+aviso src/Total.tsx:21     número que muda sem tabular-nums
+3 arquivos, 2 erros, 2 avisos</div>`, 'Exemplo de saída') },
+  { id: 'x', t: 'Ler o X de verdade', ouro: false, fonte: '',
+    por: 'O X pede login e o Chrome não está conectado. A proposta saiu dos artigos dos mesmos autores.',
+    ops: [['ok', 'Não precisa, os artigos bastam'], ['chrome', 'Eu conecto o Chrome e você lê os perfis'], ['links', 'Eu colo os links dos tweets que eu gosto']], rec: 'ok',
+    demo: () => '' }
+]}
+]
+
+/* ---------- montagem ---------- */
+document.title = TITULO
+document.getElementById('titulo').textContent = TITULO
+const raiz = document.getElementById('raiz')
+const todos = []
+for (const f of FRENTES) {
+  const sec = document.createElement('section'); sec.className = 'frente'
+  sec.innerHTML = `<h2>${f.titulo}</h2>`
+  for (const it of f.itens) {
+    if (SO_DECISAO.includes(it.id)) continue
+    it.ops = it.ops || PADRAO; it.rec = it.rec || 'agora'; todos.push(it)
+    const el = document.createElement('article'); el.className = 'item'
+    el.innerHTML = `<div class="item-topo"><h3>${it.t}</h3>${it.ouro ? '<span class="selo selo-ouro">santo graal</span>' : ''}</div>
+      <p class="por">${it.por}${it.fonte ? ` <span class="fonte">Fonte: ${it.fonte}.</span>` : ''}${MODULO[it.id] ? ` <span class="fonte">Módulo: ${MODULO[it.id]}.</span>` : ''}</p>
+      ${it.demo()}`
+    sec.appendChild(el)
+  }
+  raiz.appendChild(sec)
+}
+
+document.getElementById('prog').textContent = todos.length + ' técnicas'
+
+/* ---------- comportamento das demos ---------- */
+// tabular-nums: preço e relógio mudando
+let seg = 0
+setInterval(() => {
+  const preco = (Math.random() * 9000 + 1000).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  document.querySelectorAll('[data-conta]').forEach(e => (e.textContent = 'R$ ' + preco))
+  seg += 1.37
+  const h = String(Math.floor(seg / 3600)).padStart(2, '0'), m = String(Math.floor(seg / 60) % 60).padStart(2, '0'), s2 = (seg % 60).toFixed(0).padStart(2, '0')
+  document.querySelectorAll('[data-relogio]').forEach(e => (e.textContent = `${h}:${m}:${s2}.${String(Math.floor(Math.random() * 100)).padStart(2, '0')}`))
+}, 450)
+
+// tema
+document.querySelectorAll('[data-tema]').forEach(b => b.addEventListener('click', () => {
+  const escuro = b.dataset.tema === 'escuro'
+  const solto = document.querySelector('[data-tema-alvo="solto"]'), token = document.querySelector('[data-tema-alvo="token"]')
+  solto.style.background = escuro ? '#1c1c1c' : '#f6f7f9' // so o fundo foi lembrado, o card e o texto ficaram presos
+  Object.entries(escuro ? { '--t-bg': '#1c1c1c', '--t-card': '#2a2a2a', '--t-tx': '#ededed', '--t-tx2': '#a3a3a3' } : { '--t-bg': '#f6f7f9', '--t-card': '#fff', '--t-tx': '#15181d', '--t-tx2': '#5d6673' }).forEach(([k, v]) => token.style.setProperty(k, v))
+}))
+
+// atraso do skeleton
+const skel = '<div class="sk" style="height:14px;width:70%"></div><div class="sk" style="height:12px;width:45%;margin-top:8px"></div><div class="sk" style="height:12px;width:55%;margin-top:8px"></div>'
+const pronto = '<strong>Pedido #1042</strong><div style="font-size:13px;color:#666">3 itens · Pix · Pago</div>'
+document.querySelectorAll('[data-carga]').forEach(e => (e.innerHTML = pronto))
+document.querySelectorAll('[data-busca]').forEach(b => b.addEventListener('click', () => {
+  const ms = Number(b.dataset.busca)
+  const antes = document.querySelector('[data-carga="antes"]'), depois = document.querySelector('[data-carga="depois"]')
+  antes.innerHTML = skel
+  setTimeout(() => (antes.innerHTML = pronto), ms)
+  let mostrou = 0
+  const t = setTimeout(() => { depois.innerHTML = skel; mostrou = performance.now() }, 200)
+  setTimeout(() => {
+    clearTimeout(t)
+    const falta = mostrou ? Math.max(0, 400 - (performance.now() - mostrou)) : 0
+    setTimeout(() => (depois.innerHTML = pronto), falta)
+  }, ms)
+}))
+
+// otimista
+const itensLista = ['Pedido #1042', 'Pedido #1041', 'Pedido #1040']
+function desenharLista(qual, lista) {
+  const el = document.querySelector(`[data-lista="${qual}"]`)
+  el.innerHTML = lista.map(n => `<div class="d-linha"><span>${n}</span><button data-apaga="${qual}" data-n="${n}">Excluir</button></div>`).join('') || '<div class="d-vazio">Lista vazia. <a href="#" data-repor="' + qual + '" style="color:#2563eb">Repor</a></div>'
+}
+const listas = { antes: [...itensLista], depois: [...itensLista] }
+desenharLista('antes', listas.antes); desenharLista('depois', listas.depois)
+document.addEventListener('click', e => {
+  const rep = e.target.closest('[data-repor]')
+  if (rep) { e.preventDefault(); listas[rep.dataset.repor] = [...itensLista]; desenharLista(rep.dataset.repor, listas[rep.dataset.repor]); return }
+  const b = e.target.closest('[data-apaga]'); if (!b) return
+  const qual = b.dataset.apaga, n = b.dataset.n
+  if (qual === 'antes') {
+    b.textContent = 'Excluindo...'; b.disabled = true
+    setTimeout(() => { listas.antes = listas.antes.filter(x => x !== n); desenharLista('antes', listas.antes) }, 1200)
+  } else {
+    const pos = listas.depois.indexOf(n)
+    listas.depois = listas.depois.filter(x => x !== n); desenharLista('depois', listas.depois)
+    const palco = document.querySelector('[data-lista="depois"]').parentElement
+    palco.querySelector('.d-toast')?.remove()
+    const t = document.createElement('div'); t.className = 'd-toast'; t.innerHTML = `${n} excluído <button>Desfazer</button>`
+    palco.appendChild(t)
+    t.querySelector('button').onclick = () => { listas.depois.splice(pos, 0, n); desenharLista('depois', listas.depois); t.remove() }
+    setTimeout(() => t.remove(), 4000)
+  }
+})
+
+// acao perigosa
+document.querySelector('[data-perigo="antes"]').addEventListener('click', () => (document.querySelector('[data-msg="antes"]').textContent = 'Projeto excluído. Sem volta.'))
+const seg2 = document.querySelector('[data-perigo="depois"]')
+let tSeg
+const solta = () => { seg2.classList.remove('segurando'); clearTimeout(tSeg) }
+seg2.addEventListener('pointerdown', () => {
+  seg2.classList.add('segurando'); document.querySelector('[data-msg="depois"]').textContent = 'Segure...'
+  tSeg = setTimeout(() => { solta(); document.querySelector('[data-msg="depois"]').textContent = 'Excluído, com Desfazer por 5 s.' }, 1000)
+})
+seg2.addEventListener('pointerup', () => { if (seg2.classList.contains('segurando')) document.querySelector('[data-msg="depois"]').textContent = 'Soltou antes: nada aconteceu.'; solta() })
+seg2.addEventListener('pointerleave', solta)
+
+// colar bloqueado
+const bloq = document.querySelector('[data-bloqueia]')
+bloq.addEventListener('paste', e => { e.preventDefault(); document.querySelector('[data-msg="colar"]').textContent = 'Colar bloqueado. Digite de novo.' }) // tatile-ignorar: e o lado Antes da demo, de proposito
+
+// abas e URL
+document.querySelectorAll('[data-abas]').forEach(g => g.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return
+  g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b))
+  const q = g.dataset.abas
+  if (q === 'depois') document.querySelector('[data-url="depois"]').textContent = 'acme.app/pedidos?aba=' + b.textContent.toLowerCase()
+}))
+
+// menu
+document.querySelectorAll('[data-menu]').forEach(m => m.addEventListener('click', e => {
+  const it = e.target.closest('div:not(.d-menu)'); if (!it) return
+  const msg = document.querySelector(`[data-msg="menu-${m.dataset.menu}"]`)
+  if (m.dataset.menu === 'antes') { m.style.visibility = 'hidden'; msg.textContent = `"${it.textContent}" escolhido`; setTimeout(() => (m.style.visibility = ''), 900) }
+  else { it.classList.add('pisca'); setTimeout(() => { it.classList.remove('pisca'); m.style.visibility = 'hidden'; msg.textContent = `"${it.textContent}" escolhido` }, 320); setTimeout(() => (m.style.visibility = ''), 1400) }
+}))
+</script>
+</body>
+</html>

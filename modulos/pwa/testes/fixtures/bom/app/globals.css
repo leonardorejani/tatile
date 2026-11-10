@@ -1,0 +1,8 @@
+html { -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+.dock { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.app { height: 100dvh; }
+input, select, textarea { font-size: 16px; }
+@media (hover: hover) and (pointer: fine) {
+  .botao:hover { background: #eee; }
+}
+@media (min-width: 768px) { .painel { width: 420px; } }

@@ -1,0 +1,7 @@
+/* Definição dos tokens: aqui os valores literais são o ponto */
+:root {
+  --margem: 16px;
+  --pad: 12px;
+  --destaque: #3b82f6;
+  --raio-md: 12px;
+}

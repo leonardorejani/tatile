@@ -1,0 +1,7 @@
+node_modules/
+teste/demo/app.js
+teste/rn/app.js
+package-lock.json
+*.local.md
+.DS_Store
+teste/prototipo/forma.js

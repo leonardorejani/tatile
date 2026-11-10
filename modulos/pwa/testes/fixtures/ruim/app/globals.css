@@ -1,0 +1,3 @@
+.tela { height: 100vh; }
+.botao:hover { transform: scale(1.02); }
+input { font-size: 14px; }

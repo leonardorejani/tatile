@@ -1,0 +1,34 @@
+/* Base que tira a cara de site no celular. Cada linha tem o porquê; cole no CSS global. */
+
+html {
+  -webkit-tap-highlight-color: transparent; /* sem o flash cinza no toque */
+  -webkit-text-size-adjust: 100%;           /* sem inflar fonte ao virar o celular */
+  overscroll-behavior: none;                /* puxar para atualizar não sequestra o app */
+}
+
+/* 16 px no campo: o iPhone não dá zoom ao focar (nunca trave o zoom no viewport) */
+input, textarea, select { font-size: 16px; }
+
+/* Controle responde no toque e não seleciona texto ao segurar; conteúdo continua selecionável */
+button, a, [role="button"], [role="switch"], [role="tab"] {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Retorno ao tocar: no :active, que funciona em toque e mouse */
+.pressionavel { transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1); }
+.pressionavel:active { transform: scale(0.97); }
+
+/* Hover só onde existe hover de verdade; no toque ele ficaria preso */
+@media (hover: hover) and (pointer: fine) {
+  .pressionavel:hover { filter: brightness(0.97); }
+}
+
+/* Área que rola dentro do app não arrasta a página de trás */
+.rolagem { overflow-y: auto; overscroll-behavior: contain; }
+
+/* Movimento reduzido para quem pediu */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

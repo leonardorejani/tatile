@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espaçamento mobile</title>
+<style>
+  /* os 5 espaçamentos do post: sem a regra x com a regra. Trocar a versão anima tudo no lugar. */
+  body[data-versao="sem"] { --margem: 12px; --pad: 12px; --secao: 12px; --linha: 44px; --icone: 8px; }
+  body[data-versao="com"] { --margem: 20px; --pad: 16px; --secao: 32px; --linha: 60px; --icone: 12px; }
+
+  :root {
+    --bg: #eef1f4; --tela: #f6f7f9; --card: #fff; --texto: #15181d; --texto-2: #5d6673; --borda: #e6e9ee;
+    --rosa: #e2457a; --azul: #3b82f6; --roxo: #8b5cf6; --verde: #16a34a; --laranja: #ea8a1a;
+    --t: 320ms cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--texto);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 24px; padding: 24px 16px; -webkit-tap-highlight-color: transparent;
+  }
+  button { font: inherit; touch-action: manipulation; cursor: pointer; }
+
+  /* moldura (só quando sobra tela) */
+  .aparelho { width: 390px; height: 800px; border-radius: 54px; padding: 12px; background: #111; box-shadow: 0 30px 60px -20px rgba(20, 30, 50, .35); flex: none; }
+  .tela { position: relative; width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: var(--tela); display: flex; flex-direction: column; }
+  .status { height: 50px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; font-weight: 600; }
+  .ilha { width: 120px; height: 34px; border-radius: 20px; background: #111; }
+
+  .rolagem { position: relative; flex: 1; overflow-y: auto; padding: 4px var(--margem) 24px; transition: padding var(--t); }
+  /* app de celular não mostra barra de rolagem; a rolagem continua */
+  .rolagem { scrollbar-width: none; overscroll-behavior: contain; }
+  .rolagem::-webkit-scrollbar { display: none; }
+  .topo { display: flex; align-items: center; justify-content: space-between; }
+  .topo small { color: var(--texto-2); font-size: 13px; }
+  .topo h1 { margin: 2px 0 0; font-size: 28px; letter-spacing: -.02em; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f0a37c, #d9725a); }
+  .espaco { height: var(--secao); transition: height var(--t); }
+
+  .card { position: relative; background: var(--card); border-radius: 20px; padding: var(--pad); box-shadow: 0 1px 2px rgba(20, 30, 50, .06), 0 0 0 1px var(--borda); transition: padding var(--t); }
+  .meta-topo { display: flex; justify-content: space-between; align-items: baseline; }
+  .meta-topo strong { font-size: 17px; }
+  .meta-topo span { color: var(--texto-2); font-size: 13px; }
+  .meta-valor { font-size: 30px; font-weight: 700; letter-spacing: -.02em; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .meta-valor small { font-size: 15px; font-weight: 500; color: var(--texto-2); }
+  .barra { height: 10px; border-radius: 5px; background: #eef1f4; margin-top: 12px; overflow: hidden; }
+  .barra i { display: block; height: 100%; width: 80%; border-radius: 5px; background: linear-gradient(90deg, #60a5fa, #2563eb); }
+  .meta-rodape { display: flex; justify-content: space-between; margin-top: 12px; color: var(--texto-2); font-size: 13px; }
+
+  .secao-titulo { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .secao-titulo h2 { margin: 0; font-size: 17px; }
+  .secao-titulo a { color: var(--azul); font-size: 14px; text-decoration: none; }
+
+  .lista { padding-top: 0; padding-bottom: 0; }
+  .linha { position: relative; display: flex; align-items: center; min-height: var(--linha); transition: min-height var(--t); }
+  .linha + .linha { border-top: 1px solid var(--borda); }
+  .icone { width: 36px; height: 36px; border-radius: 10px; flex: none; display: grid; place-items: center; }
+  .icone svg { width: 18px; height: 18px; }
+  .gap-icone { width: var(--icone); align-self: stretch; flex: none; transition: width var(--t); }
+  .linha-texto { flex: 1; min-width: 0; }
+  .linha-texto strong { display: block; font-size: 15px; font-weight: 600; }
+  .linha-texto span { color: var(--texto-2); font-size: 13px; }
+  .etiqueta { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+
+  .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grade .card strong { display: block; margin-top: 10px; }
+  .grade .card span { color: var(--texto-2); font-size: 13px; }
+
+  .abas { flex: none; display: flex; justify-content: space-around; padding: 8px 8px 26px; background: rgba(255, 255, 255, .9); border-top: 1px solid var(--borda); }
+  .abas div { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--texto-2); min-width: 64px; }
+  .abas div.ativo { color: var(--azul); }
+  .abas svg { width: 24px; height: 24px; }
+
+  /* marcação de cada espaçamento */
+  .faixa-margem { position: absolute; top: 0; bottom: 0; width: var(--margem); opacity: 0; pointer-events: none; transition: opacity var(--t), width var(--t);
+    background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--rosa) 30%, transparent) 0 2px, color-mix(in srgb, var(--rosa) 10%, transparent) 2px 7px); }
+  .faixa-margem.esq { left: 0; } .faixa-margem.dir { right: 0; }
+  body[data-foco="margem"] .faixa-margem { opacity: 1; }
+  .card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; border: var(--pad) solid color-mix(in srgb, var(--azul) 22%, transparent); opacity: 0; pointer-events: none; transition: opacity var(--t), border-width var(--t); }
+  body[data-foco="pad"] .card::before { opacity: 1; }
+  body[data-foco="secao"] .espaco { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--roxo) 30%, transparent) 0 2px, color-mix(in srgb, var(--roxo) 10%, transparent) 2px 7px); }
+  body[data-foco="linha"] .linha { box-shadow: inset 0 0 0 1.5px var(--verde); background: color-mix(in srgb, var(--verde) 7%, transparent); }
+  body[data-foco="icone"] .gap-icone { background: color-mix(in srgb, var(--laranja) 40%, transparent); }
+
+  /* controles: os mesmos do protótipo desktop */
+  .controles { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; background: #dfe4ea; border-radius: 12px; padding: 4px; }
+  .seg button { font-weight: 600; font-size: 14px; border: 0; background: transparent; color: var(--texto-2); min-height: 40px; padding: 0 18px; border-radius: 9px; }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--texto); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+  .tokens { display: flex; justify-content: space-between; width: 100%; gap: 4px; background: #fff; padding: 6px; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20, 30, 50, .25); }
+  .token { --c: #999; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1.5px solid transparent; background: transparent; border-radius: 10px; padding: 4px 2px; min-height: 52px; color: var(--texto-2); font-size: 11px; }
+  .token i { width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--c); }
+  .token b { color: var(--texto); font-size: 14px; font-variant-numeric: tabular-nums; transition: color var(--t); }
+  .token[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, white); }
+  .legenda { font-size: 13px; color: var(--texto-2); text-align: center; margin: 0; min-height: 36px; max-width: 420px; }
+  button:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+
+  /* no celular: sem moldura, tela cheia, controles fixos embaixo */
+  @media (max-width: 500px) {
+    body { padding: 0; gap: 0; justify-content: flex-start; }
+    .aparelho { width: 100%; height: auto; flex: 1; border-radius: 0; padding: 0; background: none; box-shadow: none; display: flex; }
+    .tela { border-radius: 0; height: auto; flex: 1; }
+    .status, .abas { display: none; }
+    .rolagem { padding-top: calc(env(safe-area-inset-top) + 12px); }
+    .controles { position: sticky; bottom: 0; max-width: none; background: rgba(238, 241, 244, .94); backdrop-filter: blur(12px); padding: 10px 8px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--borda); }
+    .tokens { box-shadow: none; }
+    body[data-foco=""] .legenda { display: none; }
+    .legenda { min-height: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } }
+</style>
+</head>
+<body data-versao="com" data-foco="">
+  <div class="aparelho">
+    <div class="tela">
+      <div class="status"><span>9:41</span><div class="ilha"></div><span>100%</span></div>
+
+      <div class="rolagem">
+        <div class="faixa-margem esq"></div>
+        <div class="faixa-margem dir"></div>
+
+        <header class="topo">
+          <div><small>Segunda, 10 de novembro</small><h1>Painel</h1></div>
+          <div class="avatar" role="img" aria-label="Seu perfil"></div>
+        </header>
+
+        <div class="espaco"></div>
+
+        <article class="card">
+          <div class="meta-topo"><strong>Meta de novembro</strong><span>Vendas</span></div>
+          <div class="meta-valor">48 <small>de 60 pedidos</small></div>
+          <div class="barra" aria-label="80% da meta"><i></i></div>
+          <div class="meta-rodape"><span>80% atingido</span><span>faltam 15 dias</span></div>
+        </article>
+
+        <div class="espaco"></div>
+
+        <section>
+          <div class="secao-titulo"><h2>Pedidos de hoje</h2><a href="#" onclick="return false">Ver todos</a></div>
+          <div class="card lista" id="lista"></div>
+        </section>
+
+        <div class="espaco"></div>
+
+        <section>
+          <div class="secao-titulo"><h2>Equipe</h2><a href="#" onclick="return false">Ver escala</a></div>
+          <div class="grade">
+            <div class="card"><div class="icone" style="background:#e2f5e6;color:#16a34a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></div><strong>Atendimento</strong><span>3 pessoas · 27 conversas</span></div>
+            <div class="card"><div class="icone" style="background:#e3eefc;color:#3b82f6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg></div><strong>Vendas</strong><span>5 pessoas · 12 orçamentos</span></div>
+          </div>
+        </section>
+      </div>
+
+      <nav class="abas" aria-label="Navegação">
+        <div class="ativo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Início</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>Pedidos</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agenda</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/></svg>Equipe</div>
+      </nav>
+    </div>
+  </div>
+
+  <div class="controles">
+    <div class="seg" role="group" aria-label="Versão">
+      <button data-versao="sem" aria-pressed="false">Sem a regra</button>
+      <button data-versao="com" aria-pressed="true">Com a regra</button>
+    </div>
+    <div class="tokens" id="tokens" role="group" aria-label="Espaçamentos"></div>
+    <p class="legenda" id="legenda"></p>
+  </div>
+
+<script>
+  const TOKENS = [
+    { id: 'margem', nome: 'Margem', cor: 'var(--rosa)', dica: 'distância do conteúdo até a borda do aparelho.' },
+    { id: 'pad', nome: 'Card', cor: 'var(--azul)', dica: 'espaço entre a borda do card e o que está dentro.' },
+    { id: 'secao', nome: 'Seções', cor: 'var(--roxo)', dica: 'o maior salto. Seções bem separadas, itens de dentro mais juntos.' },
+    { id: 'linha', nome: 'Linha', cor: 'var(--verde)', dica: 'quanto cada item da lista ocupa. 44 é o mínimo de toque, não o ideal.' },
+    { id: 'icone', nome: 'Ícone', cor: 'var(--laranja)', dica: 'distância entre o ícone e o texto da linha.' },
+  ]
+  // Exemplos genéricos
+  const PEDIDOS = [
+    ['Pedido #1042', '3 itens · Pix', 'Pago', '#e2f5e6', '#16a34a'],
+    ['Pedido #1041', '1 item · cartão', 'Separando', '#e3eefc', '#3b82f6'],
+    ['Pedido #1040', '5 itens · boleto', 'Aguardando', '#fdf0dd', '#c2710c'],
+    ['Pedido #1039', '2 itens · Pix', 'Enviado', '#f6e6f4', '#a0418f'],
+  ]
+  const carro = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>'
+  document.getElementById('lista').innerHTML = PEDIDOS.map(([n, s, e, bg, fg]) =>
+    `<div class="linha"><div class="icone" style="background:${bg};color:${fg}">${carro}</div><div class="gap-icone"></div><div class="linha-texto"><strong>${n}</strong><span>${s}</span></div><span class="etiqueta" style="background:${bg};color:${fg}">${e}</span></div>`).join('')
+
+  const tokensEl = document.getElementById('tokens')
+  tokensEl.innerHTML = TOKENS.map(t => `<button class="token" data-id="${t.id}" style="--c:${t.cor}" aria-pressed="false"><i></i>${t.nome}<b data-valor="${t.id}"></b></button>`).join('')
+  const legenda = document.getElementById('legenda')
+
+  function atualizar() {
+    const css = getComputedStyle(document.body)
+    for (const t of TOKENS) document.querySelector(`[data-valor="${t.id}"]`).textContent = css.getPropertyValue('--' + t.id).trim()
+    const t = TOKENS.find(t => t.id === document.body.dataset.foco)
+    legenda.textContent = t ? `${t.nome}: ${t.dica}` : 'Alterne Sem e Com a regra. Toque num espaçamento para ver onde ele fica.'
+  }
+  tokensEl.addEventListener('click', e => {
+    const b = e.target.closest('.token'); if (!b) return
+    const foco = document.body.dataset.foco === b.dataset.id ? '' : b.dataset.id
+    document.body.dataset.foco = foco
+    tokensEl.querySelectorAll('.token').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.id === foco)))
+    atualizar()
+  })
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+    document.body.dataset.versao = b.dataset.versao
+    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)))
+    atualizar()
+  }))
+  const v = new URLSearchParams(location.search).get('versao')
+  if (v) document.querySelector(`.seg [data-versao="${v}"]`)?.click()
+  atualizar()
+</script>
+</body>
+</html>

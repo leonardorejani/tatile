@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espaçamento tablet</title>
+<style>
+  :root {
+    --bg: #eef1f4; --texto: #15181d; --texto-2: #5d6673; --borda: #e6e9ee;
+    --rosa: #e2457a; --azul: #3b82f6; --roxo: #8b5cf6; --verde: #16a34a; --laranja: #ea8a1a; --ciano: #0891b2;
+    --t: 400ms cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--texto); font: 15px/1.4 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 16px; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+  button { font: inherit; touch-action: manipulation; cursor: pointer; }
+
+  /* palco: a moldura tem o tamanho real do tablet e encolhe com scale para caber */
+  .palco { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; }
+  /* scale nao encolhe a caixa: o encaixe tem o tamanho ja escalado e a moldura fica dentro dele */
+  .encaixe { position: relative; transition: width var(--t), height var(--t); }
+  .moldura { position: absolute; top: 0; left: 0; padding: 22px; border-radius: 44px; background: #111; box-shadow: 0 30px 60px -20px rgba(20, 30, 50, .35); transform-origin: 0 0; transition: transform var(--t); }
+  .tela { display: block; border: 0; border-radius: 22px; background: #f6f7f9; transition: width var(--t), height var(--t); }
+
+  .controles { display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(720px, 100%); }
+  .linha-controles { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .seg { display: inline-flex; background: #dfe4ea; border-radius: 12px; padding: 4px; }
+  .seg button { font-weight: 600; font-size: 14px; border: 0; background: transparent; color: var(--texto-2); min-height: 40px; padding: 0 16px; border-radius: 9px; }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--texto); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+  .info { font-size: 13px; color: var(--texto-2); font-variant-numeric: tabular-nums; }
+  .tokens { display: flex; gap: 4px; width: 100%; background: #fff; padding: 6px; border-radius: 16px; box-shadow: 0 8px 24px -10px rgba(20, 30, 50, .25); }
+  .token { --c: #999; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1.5px solid transparent; background: transparent; border-radius: 10px; padding: 4px 2px; min-height: 52px; color: var(--texto-2); font-size: 11px; }
+  .token i { width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--c); }
+  .token b { color: var(--texto); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .token[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, white); }
+  button:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } }
+</style>
+</head>
+<body>
+  <div class="palco" id="palco">
+    <div class="encaixe" id="encaixe">
+      <div class="moldura" id="moldura">
+        <iframe class="tela" id="tela" title="Tela do tablet" src="desktop.html?embed=1"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="controles">
+    <div class="linha-controles">
+      <div class="seg" role="group" aria-label="Orientação">
+        <button data-orientacao="retrato" aria-pressed="true">Retrato</button>
+        <button data-orientacao="paisagem" aria-pressed="false">Paisagem</button>
+      </div>
+      <div class="seg" role="group" aria-label="Versão">
+        <button data-versao="sem" aria-pressed="false">Sem a regra</button>
+        <button data-versao="com" aria-pressed="true">Com a regra</button>
+      </div>
+      <span class="info" id="info"></span>
+    </div>
+    <div class="tokens" id="tokens" role="group" aria-label="Espaçamentos"></div>
+  </div>
+
+<script>
+  // iPad Air: 820 x 1180. Retrato cai nos tokens de tablet, paisagem nos de desktop.
+  const TAMANHO = { retrato: [820, 1180], paisagem: [1180, 820] }
+  const TOKENS = [['margem', 'Margem', 'var(--rosa)'], ['pad', 'Card', 'var(--azul)'], ['secao', 'Seções', 'var(--roxo)'], ['linha', 'Linha', 'var(--verde)'], ['icone', 'Ícone', 'var(--laranja)'], ['grade', 'Grade', 'var(--ciano)']]
+  const tela = document.getElementById('tela'), moldura = document.getElementById('moldura'), palco = document.getElementById('palco'), encaixe = document.getElementById('encaixe')
+  let orientacao = new URLSearchParams(location.search).get('orientacao') === 'paisagem' ? 'paisagem' : 'retrato'
+  let versao = 'com', foco = ''
+
+  const tokensEl = document.getElementById('tokens')
+  tokensEl.innerHTML = TOKENS.map(([id, nome, cor]) => `<button class="token" data-id="${id}" style="--c:${cor}" aria-pressed="false"><i></i>${nome}<b data-valor="${id}"></b></button>`).join('')
+
+  const doc = () => tela.contentDocument
+
+  function encaixar() {
+    const [w, h] = TAMANHO[orientacao]
+    tela.style.width = w + 'px'
+    tela.style.height = h + 'px'
+    const escala = Math.min(1, palco.clientWidth / (w + 44), palco.clientHeight / (h + 44))
+    moldura.style.transform = `scale(${escala})`
+    encaixe.style.width = (w + 44) * escala + 'px'
+    encaixe.style.height = (h + 44) * escala + 'px'
+    document.getElementById('info').textContent = `${w} x ${h} · ${w >= 1024 ? 'tokens de desktop' : 'tokens de tablet'}`
+  }
+
+  function aplicar() {
+    const d = doc()
+    if (!d?.body) return
+    d.body.dataset.versao = versao
+    d.body.dataset.foco = foco
+    document.querySelectorAll('[data-orientacao]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.orientacao === orientacao)))
+    document.querySelectorAll('[data-versao]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.versao === versao)))
+    tokensEl.querySelectorAll('.token').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === foco)))
+    // le o valor real de dentro da tela (depois do resize do iframe aplicar o corte de midia)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const css = tela.contentWindow.getComputedStyle(d.body)
+      for (const [id] of TOKENS) document.querySelector(`[data-valor="${id}"]`).textContent = css.getPropertyValue('--' + id).trim()
+    }))
+  }
+
+  document.querySelectorAll('[data-orientacao]').forEach(b => b.addEventListener('click', () => { orientacao = b.dataset.orientacao; encaixar(); aplicar(); setTimeout(aplicar, 450) }))
+  document.querySelectorAll('[data-versao]').forEach(b => b.addEventListener('click', () => { versao = b.dataset.versao; aplicar() }))
+  tokensEl.addEventListener('click', e => {
+    const b = e.target.closest('.token'); if (!b) return
+    foco = foco === b.dataset.id ? '' : b.dataset.id
+    aplicar()
+  })
+  tela.addEventListener('load', aplicar)
+  addEventListener('resize', encaixar)
+  encaixar()
+</script>
+</body>
+</html>

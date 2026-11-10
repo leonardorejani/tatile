@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espaçamento desktop</title>
+<link rel="stylesheet" href="../../codigo/espaco.css">
+<style>
+  /* "sem a regra": tudo no mesmo valor, como a coluna da esquerda do post */
+  body[data-versao="sem"] { --margem: 16px; --pad: 16px; --secao: 16px; --linha: 44px; --icone: 8px; --grade: 16px; --item: 8px; --conteudo-max: 100%; }
+
+  :root {
+    --bg: #f6f7f9; --card: #fff; --texto: #15181d; --texto-2: #5d6673; --borda: #e6e9ee;
+    --rosa: #e2457a; --azul: #3b82f6; --roxo: #8b5cf6; --verde: #16a34a; --laranja: #ea8a1a; --ciano: #0891b2;
+    --t: 260ms cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--texto); font: 15px/1.45 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+  .app { display: flex; min-height: 100dvh; }
+
+  .lateral { width: 220px; flex: none; background: #fff; border-right: 1px solid var(--borda); padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .marca { font-weight: 700; font-size: 17px; padding: 0 12px 20px; }
+  .lateral a { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 12px; border-radius: 10px; color: var(--texto-2); text-decoration: none; }
+  .lateral a.ativo { background: #eef3fe; color: var(--azul); font-weight: 600; }
+  .lateral svg { width: 20px; height: 20px; flex: none; }
+
+  main { flex: 1; min-width: 0; padding-bottom: 160px; }
+  /* dentro da moldura do tablet: sem barra de rolagem visivel, como num tablet de verdade */
+  html.embed { scrollbar-width: none; }
+  html.embed::-webkit-scrollbar { display: none; }
+  .conteudo { position: relative; max-width: var(--conteudo-max); margin: 0 auto; padding: 32px var(--margem) 0; transition: padding var(--t); }
+  .topo { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .topo small { color: var(--texto-2); }
+  .topo h1 { margin: 2px 0 0; font-size: 28px; letter-spacing: -.02em; }
+  .primario { font: inherit; font-weight: 600; min-height: 44px; padding: 0 18px; border: 0; border-radius: 12px; background: var(--texto); color: #fff; cursor: pointer; }
+
+  .espaco { height: var(--secao); transition: height var(--t); }
+  .secao-titulo { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--item); }
+  .secao-titulo h2 { margin: 0; font-size: 17px; }
+  .secao-titulo a { color: var(--azul); font-size: 14px; text-decoration: none; }
+
+  .card { position: relative; background: var(--card); border-radius: 16px; padding: var(--pad); box-shadow: 0 0 0 1px var(--borda); transition: padding var(--t); }
+  .grade { display: grid; gap: var(--grade); transition: gap var(--t); }
+  .grade-destaque { grid-template-columns: 2fr 1fr 1fr; }
+  .grade-equipe { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .capa { height: 140px; border-radius: 10px; background: linear-gradient(135deg, #1e3a8a, #2563eb 55%, #60a5fa); }
+  .card strong { display: block; }
+  .card span, .card p { color: var(--texto-2); font-size: 13px; margin: 0; }
+  .numero { font-size: 28px; font-weight: 700; margin: 4px 0; font-variant-numeric: tabular-nums; }
+  .destaque-info { margin-top: 12px; }
+
+  .lista { padding-top: 0; padding-bottom: 0; }
+  .linha { position: relative; display: flex; align-items: center; min-height: var(--linha); transition: min-height var(--t); }
+  .linha + .linha { border-top: 1px solid var(--borda); }
+  .icone { width: 36px; height: 36px; border-radius: 10px; flex: none; display: grid; place-items: center; }
+  .icone svg { width: 18px; height: 18px; }
+  .gap-icone { width: var(--icone); align-self: stretch; flex: none; transition: width var(--t); }
+  .linha-texto { flex: 1; min-width: 0; }
+  .linha-texto strong { font-size: 15px; }
+  .etiqueta { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+
+  /* abaixo de 768 (mesmo corte do pwa-nativo): menu vira barra, grades encolhem */
+  @media (max-width: 767px) {
+    .app { flex-direction: column; }
+    .lateral { width: auto; flex-direction: row; align-items: center; border-right: 0; border-bottom: 1px solid var(--borda); padding: 8px var(--margem); overflow-x: auto; }
+    .marca { padding: 0 12px 0 0; }
+    .lateral a span { display: none; }
+  }
+  @media (max-width: 1023px) {
+    .grade-destaque { grid-template-columns: 1fr 1fr; }
+    .grade-destaque > :first-child { grid-column: 1 / -1; }
+    .grade-equipe { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 639px) {
+    .topo .primario { display: none; }
+  }
+
+  /* marcacao de cada espacamento */
+  .faixa { position: absolute; top: 0; bottom: 0; width: var(--margem); opacity: 0; pointer-events: none; transition: opacity var(--t), width var(--t);
+    background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--rosa) 30%, transparent) 0 2px, color-mix(in srgb, var(--rosa) 10%, transparent) 2px 7px); }
+  .faixa.esq { left: 0; } .faixa.dir { right: 0; }
+  body[data-foco="margem"] .faixa { opacity: 1; }
+  .card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; border: var(--pad) solid color-mix(in srgb, var(--azul) 22%, transparent); opacity: 0; pointer-events: none; transition: opacity var(--t), border-width var(--t); }
+  body[data-foco="pad"] .card::before { opacity: 1; }
+  body[data-foco="secao"] .espaco { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--roxo) 30%, transparent) 0 2px, color-mix(in srgb, var(--roxo) 10%, transparent) 2px 7px); }
+  body[data-foco="linha"] .linha { box-shadow: inset 0 0 0 1.5px var(--verde); background: color-mix(in srgb, var(--verde) 7%, transparent); }
+  body[data-foco="icone"] .gap-icone { background: color-mix(in srgb, var(--laranja) 35%, transparent); }
+  body[data-foco="grade"] .grade { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--ciano) 30%, transparent) 0 2px, color-mix(in srgb, var(--ciano) 10%, transparent) 2px 7px); border-radius: 16px; }
+
+  /* controles */
+  .controles { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(720px, calc(100% - 32px)); background: rgba(255, 255, 255, .96); backdrop-filter: blur(12px); border-radius: 20px; box-shadow: 0 12px 32px -12px rgba(20, 30, 50, .35), 0 0 0 1px var(--borda); padding: 12px; display: flex; flex-direction: column; gap: 8px; align-items: center; z-index: 5; }
+  .linha-controles { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .seg { display: inline-flex; background: #e8ebf0; border-radius: 12px; padding: 4px; }
+  .seg button { font: inherit; font-weight: 600; font-size: 14px; border: 0; background: transparent; color: var(--texto-2); min-height: 36px; padding: 0 16px; border-radius: 9px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--texto); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+  .tela-atual { font-size: 13px; color: var(--texto-2); font-variant-numeric: tabular-nums; }
+  .tokens { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .token { --c: #999; font: inherit; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 2px; border: 1.5px solid transparent; background: transparent; border-radius: 10px; padding: 4px 8px; min-width: 76px; min-height: 44px; cursor: pointer; color: var(--texto-2); }
+  .token b { color: var(--texto); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .token i { width: 10px; height: 10px; border-radius: 3px; border: 2px solid var(--c); }
+  .token[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, white); }
+  button:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } }
+</style>
+</head>
+<body data-versao="com" data-foco="">
+<div class="app">
+  <nav class="lateral" aria-label="Navegação">
+    <div class="marca">Acme</div>
+    <a class="ativo" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span>Início</span></a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg><span>Pedidos</span></a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Agenda</span></a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/></svg><span>Equipe</span></a>
+  </nav>
+
+  <main>
+    <div class="conteudo" data-testid="conteudo">
+      <div class="faixa esq"></div><div class="faixa dir"></div>
+      <header class="topo">
+        <div><small>Segunda, 10 de novembro</small><h1>Painel</h1></div>
+        <button class="primario">Novo pedido</button>
+      </header>
+
+      <div class="espaco"></div>
+
+      <section data-testid="secao-1">
+        <div class="secao-titulo"><h2>Campanha de novembro</h2><a href="#">Detalhes</a></div>
+        <div class="grade grade-destaque" data-testid="grade">
+          <article class="card" data-testid="card"><div class="capa" data-testid="dentro-card"></div><div class="destaque-info"><strong>Promoção de fim de ano</strong><span>48 de 60 pedidos · faltam 15 dias</span></div></article>
+          <article class="card"><span>Orçamentos</span><div class="numero">12</div><p>4 aguardando resposta</p></article>
+          <article class="card"><span>Pedidos</span><div class="numero">48</div><p>+6 esta semana</p></article>
+        </div>
+      </section>
+
+      <div class="espaco"></div>
+
+      <section data-testid="secao-2">
+        <div class="secao-titulo"><h2>Pedidos de hoje</h2><a href="#">Ver todos</a></div>
+        <div class="card lista" id="lista"></div>
+      </section>
+
+      <div class="espaco"></div>
+
+      <section>
+        <div class="secao-titulo"><h2>Equipe</h2><a href="#">Ver escala</a></div>
+        <div class="grade grade-equipe">
+          <article class="card" data-testid="eq-1"><strong>Atendimento</strong><span>3 pessoas · 27 conversas</span></article>
+          <article class="card" data-testid="eq-2"><strong>Vendas</strong><span>5 pessoas · 12 orçamentos</span></article>
+          <article class="card"><strong>Logística</strong><span>2 pessoas · 9 entregas</span></article>
+          <article class="card"><strong>Financeiro</strong><span>2 pessoas · 5 cobranças</span></article>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="controles">
+  <div class="linha-controles">
+    <div class="seg" role="group" aria-label="Versão">
+      <button data-versao="sem" aria-pressed="false">Sem a regra</button>
+      <button data-versao="com" aria-pressed="true">Com a regra</button>
+    </div>
+    <span class="tela-atual" id="tela-atual"></span>
+  </div>
+  <div class="tokens" id="tokens" role="group" aria-label="Espaçamentos"></div>
+</div>
+
+<script>
+  const TOKENS = [
+    ['margem', 'Margem', 'var(--rosa)'],
+    ['pad', 'Card', 'var(--azul)'],
+    ['secao', 'Seções', 'var(--roxo)'],
+    ['linha', 'Linha', 'var(--verde)'],
+    ['icone', 'Ícone', 'var(--laranja)'],
+    ['grade', 'Grade', 'var(--ciano)'],
+  ]
+  // Exemplos genéricos
+  const PEDIDOS = [['Pedido #1042', '3 itens · Pix', 'Pago', '#e2f5e6', '#16a34a'], ['Pedido #1041', '1 item · cartão', 'Separando', '#e3eefc', '#3b82f6'], ['Pedido #1040', '5 itens · boleto', 'Aguardando', '#fdf0dd', '#c2710c'], ['Pedido #1039', '2 itens · Pix', 'Enviado', '#f6e6f4', '#a0418f']]
+  const nota = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>'
+  document.getElementById('lista').innerHTML = PEDIDOS.map(([t, s, d, bg, fg]) =>
+    `<div class="linha" data-testid="linha"><div class="icone" data-testid="icone" style="background:${bg};color:${fg}">${nota}</div><div class="gap-icone"></div><div class="linha-texto" data-testid="linha-texto"><strong>${t}</strong> <span>${s}</span></div><span class="etiqueta" style="background:${bg};color:${fg}">${d}</span></div>`).join('')
+
+  const tokensEl = document.getElementById('tokens')
+  tokensEl.innerHTML = TOKENS.map(([id, nome, cor]) => `<button class="token" data-id="${id}" style="--c:${cor}" aria-pressed="false"><i></i>${nome}<b data-valor="${id}"></b></button>`).join('')
+
+  function atualizar() {
+    if (!document.querySelector('.controles')) return // embutido no tablet: os controles ficam fora
+    const css = getComputedStyle(document.body)
+    for (const [id] of TOKENS) document.querySelector(`[data-valor="${id}"]`).textContent = css.getPropertyValue('--' + id).trim()
+    const w = innerWidth
+    document.getElementById('tela-atual').textContent = `${w}px · ${w >= 1024 ? 'desktop' : w >= 640 ? 'tablet' : 'celular'}`
+  }
+  tokensEl.addEventListener('click', e => {
+    const b = e.target.closest('.token'); if (!b) return
+    const foco = document.body.dataset.foco === b.dataset.id ? '' : b.dataset.id
+    document.body.dataset.foco = foco
+    tokensEl.querySelectorAll('.token').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.id === foco)))
+  })
+  document.querySelectorAll('[data-versao]').forEach(b => b.tagName === 'BUTTON' && b.addEventListener('click', () => {
+    document.body.dataset.versao = b.dataset.versao
+    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)))
+    atualizar()
+  }))
+  // dentro do prototipo do tablet, os controles ficam fora da moldura
+  if (new URLSearchParams(location.search).has('embed')) {
+    document.querySelector('.controles').remove()
+    document.documentElement.classList.add('embed')
+  }
+  const v = new URLSearchParams(location.search).get('versao')
+  if (v) document.querySelector(`.seg [data-versao="${v}"]`)?.click()
+  addEventListener('resize', atualizar)
+  atualizar()
+</script>
+</body>
+</html>

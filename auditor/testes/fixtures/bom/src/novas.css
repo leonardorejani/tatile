@@ -1,0 +1,76 @@
+.fundo {
+  background: linear-gradient(180deg, white, transparent);
+}
+
+.rolagem {
+  background: linear-gradient(to bottom, black, transparent);
+}
+
+.mesmo-matiz {
+  background: linear-gradient(90deg, var(--destaque), var(--destaque-escuro));
+}
+
+.com-variavel {
+  background: linear-gradient(90deg, var(--a), var(--b));
+  box-shadow: 0 0 24px var(--brilho);
+}
+
+.sombra {
+  box-shadow: 0 1px 2px black, 0 0 12px gray;
+  filter: drop-shadow(0 0 8px gray);
+}
+
+.anel {
+  box-shadow: 0 0 0 3px var(--destaque);
+}
+
+.titulo {
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.rotulo {
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.barra {
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.acordeao {
+  transition: grid-template-rows 0.2s;
+}
+
+.skeleton {
+  animation: pulse 1.5s infinite;
+}
+
+.ao-vivo {
+  animation: pulse 2s infinite;
+}
+
+@keyframes sobe {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.link:not(:hover) {
+  color: var(--texto);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--destaque);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    background: var(--superficie);
+  }
+}
