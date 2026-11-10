@@ -56,7 +56,7 @@ main{max-width:1080px;margin:0 auto;padding:var(--s5) var(--s4) 96px}
 /* palco das demos: sempre claro, para comparar igual nos dois temas */
 .demo{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
 .lado{border:1px solid var(--border);border-radius:var(--r);background:#fff;color:#15181d;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.lado>b{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid #eee;color:#8a8f98}
+.lado>b{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 10px;border-bottom:1px solid #eee;color:#5d6673}
 .lado.depois>b{color:#1F7A4D;background:#F2FAF5}
 .palco{padding:16px;flex:1;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:10px;position:relative;font-size:15px}
 .unica{grid-template-columns:1fr}
@@ -104,6 +104,7 @@ main{max-width:1080px;margin:0 auto;padding:var(--s5) var(--s4) 96px}
 .d-linha{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;background:#f6f7f9;font-size:14px}
 .d-linha button,.d-mini-btn{font:600 12px var(--fonte);border:0;background:#fde8e8;color:#b42318;border-radius:6px;padding:4px 8px;cursor:pointer}
 .d-toast{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:#15181d;color:#fff;font-size:13px;border-radius:10px;padding:8px 12px;display:flex;gap:12px;align-items:center;white-space:nowrap}
+.d-toast.fluxo{position:static;transform:none;align-self:flex-start;white-space:normal}
 .d-toast button{background:none;border:0;color:#7cc4ff;font:600 13px var(--fonte);cursor:pointer}
 .d-vazio{text-align:center;color:#5d6673;font-size:14px}
 .d-vazio .ic{width:44px;height:44px;border-radius:12px;background:#eef3fe;display:grid;place-items:center;margin:0 auto 8px;color:#2563eb;font-weight:700}
@@ -164,7 +165,7 @@ const FRENTES = [
     por: 'Tamanhos saem de uma escala só (28, 17, 15, 13), igual ao espaco.css. Hoje cada tela escolhe na mão.',
     demo: () => par(
       `<div style="font-size:22px;font-weight:700">Pedidos de hoje</div><div style="font-size:16.5px;font-weight:600">Pedido #1042</div><div style="font-size:13.5px;color:#666">3 itens · Pix</div><div style="font-size:11px;color:#999">atualizado agora</div>`,
-      `<div style="font-size:28px;font-weight:700;letter-spacing:-.02em">Pedidos de hoje</div><div style="font-size:17px;font-weight:600">Pedido #1042</div><div style="font-size:15px;color:#4b5260">3 itens · Pix</div><div style="font-size:13px;color:#8a8f98">atualizado agora</div>`) },
+      `<div style="font-size:28px;font-weight:700;letter-spacing:-.02em">Pedidos de hoje</div><div style="font-size:17px;font-weight:600">Pedido #1042</div><div style="font-size:15px;color:#4b5260">3 itens · Pix</div><div style="font-size:13px;color:#5d6673">atualizado agora</div>`) },
   { id: 'tabular', t: 'Número que muda usa tabular-nums', ouro: true, fonte: 'Jakub Krehel, Vercel',
     por: 'Todo dígito com a mesma largura. Contador, preço e tabela param de tremer quando o valor muda.',
     demo: () => par(`<div class="d-num" data-conta style="font-variant-numeric:proportional-nums">R$ 0,00</div><div class="d-num" data-relogio style="font-variant-numeric:proportional-nums;font-size:20px">00:00:00</div>`,
@@ -185,7 +186,7 @@ const FRENTES = [
   { id: 'raio', t: 'Raio concêntrico', ouro: true, fonte: 'Jakub Krehel, Vercel',
     por: 'O raio de dentro é o de fora menos o padding. Raio igual por dentro e por fora deixa o canto torto.',
     demo: () => par(`<div class="d-card"><div class="d-img" style="border-radius:20px"></div></div><small style="color:#8a8f98">fora 20, dentro 20</small>`,
-      `<div class="d-card"><div class="d-img" style="border-radius:8px"></div></div><small style="color:#8a8f98">fora 20, dentro 20 - 12 = 8</small>`) },
+      `<div class="d-card"><div class="d-img" style="border-radius:8px"></div></div><small style="color:#5d6673">fora 20, dentro 20 - 12 = 8</small>`) },
   { id: 'sombra', t: 'Sombra em camadas no lugar de borda, e contorno sutil em imagem', ouro: false, fonte: 'Jakub Krehel',
     por: 'A sombra se ajusta ao fundo e dá profundidade sem a linha cinza dura. A imagem ganha uma borda de 1px a 10%.',
     demo: () => `<div class="demo">${lado('Antes', `<div style="background:#eef1f4;padding:14px;border-radius:10px"><div class="d-sombra" style="border:1px solid #cfd4db"><strong>Pedido #1042</strong><div style="font-size:13px;color:#666">3 itens</div></div></div>`)}${lado('Depois', `<div style="background:#eef1f4;padding:14px;border-radius:10px"><div class="d-sombra" style="box-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.06),0 4px 12px -2px rgba(0,0,0,.08)"><strong>Pedido #1042</strong><div style="font-size:13px;color:#666">3 itens</div></div></div>`)}</div>` },
@@ -207,7 +208,7 @@ const FRENTES = [
   { id: 'tingido', t: 'Cinza tingido sobre fundo colorido', ouro: false, fonte: 'Steve Schoger (lido por resumo)', rec: 'depois',
     por: 'Cinza puro sobre azul fica sujo. O texto de apoio puxa o matiz do fundo.',
     demo: () => par(`<div class="d-banner"><strong>Promoção de fim de ano</strong><span style="color:#9ca3af;font-size:14px">48 de 60 pedidos · faltam 15 dias</span></div>`,
-      `<div class="d-banner"><strong>Promoção de fim de ano</strong><span style="color:#c7dafe;font-size:14px">48 de 60 pedidos · faltam 15 dias</span></div>`) }
+      `<div class="d-banner"><strong>Promoção de fim de ano</strong><span style="color:#eef4ff;font-size:14px">48 de 60 pedidos · faltam 15 dias</span></div>`) }
 ]},
 { titulo: 'Estados e feedback', itens: [
   { id: 'atraso', t: 'Skeleton só aparece se demorar, e não some num piscar', ouro: true, fonte: 'Vercel',
@@ -219,7 +220,7 @@ const FRENTES = [
   { id: 'destrutivo', t: 'Ação perigosa: segurar para confirmar', ouro: false, fonte: 'Rauno Freiberg, Vercel',
     por: 'Ação leve dispara no toque. Ação perigosa só depois de segurar, ou com Desfazer. Teste segurar e soltar antes de completar.',
     demo: () => par(`<button class="d-mini-btn" data-perigo="antes" style="height:40px;font-size:14px;padding:0 16px">Excluir projeto</button><small data-msg="antes" style="color:#8a8f98"></small>`,
-      `<button class="d-segurar" data-perigo="depois"><i></i><span style="position:relative">Segure para excluir</span></button><small data-msg="depois" style="color:#8a8f98"></small>`) },
+      `<button class="d-segurar" data-perigo="depois"><i></i><span style="position:relative">Segure para excluir</span></button><small data-msg="depois" style="color:#5d6673"></small>`) },
   { id: 'vazio', t: 'Tela de vazio e de erro com próxima ação', ouro: false, fonte: 'Vercel',
     por: 'Nunca tela em branco nem "algo deu errado" sem saída.',
     demo: () => par(`<div class="d-vazio">Nenhum dado.</div><div class="d-vazio" style="color:#b42318">Erro.</div>`,
@@ -229,7 +230,7 @@ const FRENTES = [
   { id: 'campos', t: 'Colar liberado e teclado certo', ouro: false, fonte: 'Vercel',
     por: 'Nunca bloquear colar. type, autocomplete e spellcheck certos fazem o celular abrir o teclado de e-mail e sugerir o endereço.',
     demo: () => par(`<input class="d-input" data-bloqueia placeholder="seu e-mail" type="text"><small data-msg="colar" style="color:#8a8f98">tente colar aqui</small>`,
-      `<input class="d-input" type="email" autocomplete="email" spellcheck="false" placeholder="voce@empresa.com…"><small style="color:#8a8f98">colar funciona, teclado de e-mail no celular</small>`) },
+      `<input class="d-input" type="email" autocomplete="email" spellcheck="false" placeholder="voce@empresa.com…"><small style="color:#5d6673">colar funciona, teclado de e-mail no celular</small>`) },
   { id: 'envio', t: 'Erro do lado do campo e foco no primeiro inválido', ouro: false, fonte: 'Vercel',
     por: 'O botão fica liberado até enviar. O erro aparece embaixo do campo dizendo como corrigir, com o foco nele.',
     demo: () => par(`<div style="font-size:13px;color:#b42318;background:#fde8e8;padding:6px 8px;border-radius:6px">Erro no formulário.</div><input class="d-input" value="voce@empresa"><button class="d-mini-btn" style="opacity:.45;height:36px;background:#e8ebf0;color:#15181d" disabled>Enviar</button>`,
@@ -239,14 +240,14 @@ const FRENTES = [
   { id: 'url', t: 'Estado da tela na URL', ouro: true, fonte: 'Vercel',
     por: 'Filtro, aba e página aberta vão pro endereço. Recarregar, voltar e compartilhar abrem na mesma tela. Troque a aba e olhe o endereço.',
     demo: () => par(`<div class="d-abas" data-abas="antes"><button class="on">Todos</button><button>Pagos</button><button>Enviados</button></div><div class="d-url" data-url="antes">acme.app/pedidos</div>`,
-      `<div class="d-abas" data-abas="depois"><button class="on">Todos</button><button>Pagos</button><button>Enviados</button></div><div class="d-url" data-url="depois">acme.app/pedidos?aba=todos</div>`) },
+      `<div class="d-abas" data-abas="depois"><button class="on">Todos</button><button>Pagos</button><button>Enviados</button></div><div class="d-url" data-url="depois">acme.app/pedidos</div>`) },
   { id: 'hit', t: 'Área de toque maior que o ícone', ouro: false, fonte: 'Vercel',
     por: 'O ícone pode ser pequeno, a área de toque não: 24px no desktop, 44px no celular. A área tracejada é onde o dedo acerta.',
-    demo: () => par(`<span class="d-alvo" style="--h:0">✕</span><small style="color:#8a8f98;text-align:center">área de 16px</small>`, `<span class="d-alvo" style="--h:-14px">✕</span><small style="color:#8a8f98;text-align:center">área de 44px, ícone igual</small>`) },
+    demo: () => par(`<span class="d-alvo" style="--h:0">✕</span><small style="color:#8a8f98;text-align:center">área de 16px</small>`, `<span class="d-alvo" style="--h:-14px">✕</span><small style="color:#5d6673;text-align:center">área de 44px, ícone igual</small>`) },
   { id: 'menu', t: 'Item de menu pisca ao ser escolhido', ouro: false, fonte: 'Rauno Freiberg', rec: 'depois',
     por: 'Confirma a escolha antes do menu fechar. Clique num item dos dois lados.',
     demo: () => par(`<div class="d-menu" data-menu="antes"><div>Duplicar</div><div>Arquivar</div><div>Compartilhar</div></div><small data-msg="menu-antes" style="color:#8a8f98;text-align:center"></small>`,
-      `<div class="d-menu" data-menu="depois"><div>Duplicar</div><div>Arquivar</div><div>Compartilhar</div></div><small data-msg="menu-depois" style="color:#8a8f98;text-align:center"></small>`) }
+      `<div class="d-menu" data-menu="depois"><div>Duplicar</div><div>Arquivar</div><div>Compartilhar</div></div><small data-msg="menu-depois" style="color:#5d6673;text-align:center"></small>`) }
 ]},
 { titulo: 'Como a tatile cresce', itens: [
   { id: 'apontar', t: 'Movimento e teste de pior caso: apontar pras skills que você já tem', ouro: false, fonte: 'suas skills instaladas',
@@ -358,14 +359,33 @@ document.addEventListener('click', e => {
 // acao perigosa
 document.querySelector('[data-perigo="antes"]').addEventListener('click', () => (document.querySelector('[data-msg="antes"]').textContent = 'Projeto excluído. Sem volta.'))
 const seg2 = document.querySelector('[data-perigo="depois"]')
-let tSeg
+const msgSeg = document.querySelector('[data-msg="depois"]')
+let tSeg, tDesfazer
 const solta = () => { seg2.classList.remove('segurando'); clearTimeout(tSeg) }
-seg2.addEventListener('pointerdown', () => {
-  seg2.classList.add('segurando'); document.querySelector('[data-msg="depois"]').textContent = 'Segure...'
-  tSeg = setTimeout(() => { solta(); document.querySelector('[data-msg="depois"]').textContent = 'Excluído, com Desfazer por 5 s.' }, 1000)
-})
-seg2.addEventListener('pointerup', () => { if (seg2.classList.contains('segurando')) document.querySelector('[data-msg="depois"]').textContent = 'Soltou antes: nada aconteceu.'; solta() })
+const excluiu = () => {
+  solta(); seg2.hidden = true
+  msgSeg.textContent = 'Projeto excluído. Desfazer por 5 s.'
+  const t = document.createElement('div'); t.className = 'd-toast fluxo'; t.dataset.toastPerigo = ''
+  t.innerHTML = 'Projeto excluído <button>Desfazer</button>'
+  seg2.parentElement.appendChild(t)
+  const fim = msg => { clearTimeout(tDesfazer); t.remove(); seg2.hidden = false; msgSeg.textContent = msg }
+  t.querySelector('button').onclick = () => fim('Exclusão desfeita, o projeto voltou.')
+  tDesfazer = setTimeout(() => fim('Excluído de vez. Na demo o botão volta para você testar de novo.'), 5000)
+}
+// pointer e teclado (Enter e Espaço) fazem o mesmo: segurar 1 s confirma, soltar antes cancela
+const comeca = () => {
+  if (seg2.classList.contains('segurando')) return
+  seg2.classList.add('segurando'); msgSeg.textContent = 'Segure...'
+  tSeg = setTimeout(excluiu, 1000)
+}
+const soltou = () => { if (seg2.classList.contains('segurando')) msgSeg.textContent = 'Soltou antes: nada aconteceu.'; solta() }
+const tecla = e => e.key === 'Enter' || e.key === ' '
+seg2.addEventListener('pointerdown', comeca)
+seg2.addEventListener('pointerup', soltou)
 seg2.addEventListener('pointerleave', solta)
+seg2.addEventListener('keydown', e => { if (!tecla(e)) return; e.preventDefault(); if (!e.repeat) comeca() })
+seg2.addEventListener('keyup', e => { if (!tecla(e)) return; e.preventDefault(); soltou() })
+seg2.addEventListener('blur', solta)
 
 // colar bloqueado
 const bloq = document.querySelector('[data-bloqueia]')
@@ -376,7 +396,7 @@ document.querySelectorAll('[data-abas]').forEach(g => g.addEventListener('click'
   const b = e.target.closest('button'); if (!b) return
   g.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b))
   const q = g.dataset.abas
-  if (q === 'depois') document.querySelector('[data-url="depois"]').textContent = 'acme.app/pedidos?aba=' + b.textContent.toLowerCase()
+  if (q === 'depois') document.querySelector('[data-url="depois"]').textContent = 'acme.app/pedidos' + (b === g.firstElementChild ? '' : '?aba=' + b.textContent.toLowerCase()) // aba padrao (a primeira) nao vai pra URL
 }))
 
 // menu

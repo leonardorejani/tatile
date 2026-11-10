@@ -66,6 +66,21 @@ test('contraste minimo WCAG em todo par de texto, nos dois temas', () => {
   }
 })
 
+// color-mix(in srgb, a p%, b) do cor.css, para medir o texto de apoio tingido
+const misturar = (a: string, b: string, p: number) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.slice(i, i + 2), 16) * p + parseInt(b.slice(i, i + 2), 16) * (1 - p)).toString(16).padStart(2, '0')).join('')
+
+test('texto de apoio tingido sobre destaque e sobre bloco passa de 4,5 nos dois temas', () => {
+  const css = ler('cor.css')
+  const pct = (nome: string) => Number(css.match(new RegExp(`--${nome}: color-mix\\(in srgb, var\\(--[\\w-]+\\) (\\d+)%`))![1]) / 100
+  for (const tema of ['claro', 'escuro'] as const) {
+    const c = COR[tema]
+    const apoio = misturar(c.destaqueTexto, c.destaque, pct('destaque-texto-2'))
+    const apoioBloco = misturar(c.destaqueBlocoTexto, c.destaqueBloco, pct('destaque-bloco-texto-2'))
+    assert.ok(contraste(apoio, c.destaque) >= 4.5, `${tema} destaque-texto-2: ${contraste(apoio, c.destaque).toFixed(2)}`)
+    assert.ok(contraste(apoioBloco, c.destaqueBloco) >= 4.5, `${tema} destaque-bloco-texto-2: ${contraste(apoioBloco, c.destaqueBloco).toFixed(2)}`)
+  }
+})
+
 test('raio concentrico: dentro = fora - padding, nunca menor que 4', () => {
   assert.equal(raioDentro(20, 12), 8)
   assert.equal(raioDentro(20, 16), 4)

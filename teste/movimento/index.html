@@ -65,8 +65,8 @@ code{font:var(--texto-xs) ui-monospace,Menlo,monospace}
 .sheet p{margin:0 0 var(--item);font-size:var(--texto-sm)}
 .antes .sheet{display:none}
 .antes .sheet.aberto{display:block}
-.depois .sheet{transform:translateY(100%);transition:transform var(--mov-sai-lento) var(--curva-sai)}
-.depois .sheet.aberto{transform:none;transition:transform var(--mov-lento) var(--curva-entra)}
+.depois .sheet{transform:translateY(100%);visibility:hidden;transition:transform var(--mov-sai-lento) var(--curva-sai),visibility 0s var(--mov-sai-lento)}
+.depois .sheet.aberto{transform:none;visibility:visible;transition:transform var(--mov-lento) var(--curva-entra),visibility 0s}
 
 /* aviso com barra de tempo */
 .aviso{position:absolute;left:var(--pad);right:var(--pad);bottom:var(--pad);background:var(--texto);color:var(--superficie);border-radius:var(--raio);padding:var(--icone) var(--pad);font-size:var(--texto-sm);overflow:hidden;--tempo:3000ms}
@@ -77,6 +77,8 @@ code{font:var(--texto-xs) ui-monospace,Menlo,monospace}
 .aviso i{position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--destaque);transform-origin:left;transform:scaleX(0)}
 .depois .aviso.aberto i{animation:barra var(--tempo) linear forwards}
 @keyframes barra{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+/* reduzir movimento: a barra esvaziando e movimento, entao some (o aviso continua saindo no tempo dele) */
+@media (prefers-reduced-motion:reduce){.depois .aviso.aberto i{animation:none;display:none}}
 
 /* abas com indicador */
 .abas{position:relative;display:flex;gap:var(--item);border-bottom:1px solid var(--borda)}
@@ -123,8 +125,11 @@ code{font:var(--texto-xs) ui-monospace,Menlo,monospace}
 .depois.btn-c,.depois .btn-c{transition:width var(--mov-padrao) var(--curva-move),background-color var(--mov-rapido) var(--curva-move),transform var(--mov-rapido) var(--curva-move)}
 .depois .btn-c>*{transition:opacity var(--mov-rapido) var(--curva-move)}
 .btn-c .spin,.btn-c .ok{width:22px;height:22px;opacity:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.btn-c .spin{animation:gira 800ms linear infinite}
+/* gira so enquanto carrega (Depois) e nunca com reduzir movimento: ai o arco fica parado como indicacao */
+.antes .btn-c .spin{animation:gira 800ms linear infinite}
+.depois .btn-c[data-estado="carregando"] .spin{animation:gira 800ms linear infinite}
 @keyframes gira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.depois .btn-c[data-estado="carregando"] .spin{animation:none}}
 .btn-c .ok path{stroke-dasharray:1;stroke-dashoffset:1}
 .depois .btn-c .ok path{transition:stroke-dashoffset var(--mov-padrao) var(--curva-move)}
 .btn-c[data-estado="fechando"] .rot,.btn-c[data-estado="carregando"] .rot,.btn-c[data-estado="salvo"] .rot{opacity:0}
@@ -218,8 +223,8 @@ const acd = q => `<div class="acd" data-acd="${q}">${['Como funciona o prazo?', 
 
 const btnC = q => `<button class="btn-c ${q === 'depois' ? 'apertavel' : ''}" data-btn="${q}" data-estado="parado"><span class="rot">Salvar</span><svg class="spin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="40 100"/></svg><svg class="ok" viewBox="0 0 24 24"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7"/></svg></button>`
 
-const modal = q => `${bt('Abrir modal', `data-modal-abrir="${q}"`)}<div class="m-veu" data-modal="${q}"><div class="m-caixa"><p><b>Excluir projeto?</b></p><p>Essa ação tem volta por 5 segundos.</p><button class="b forte apertavel" data-modal-fechar="${q}">Entendi</button></div></div>`
-const sheet = q => `<div class="conteudo">${bt('Abrir painel', `data-sheet-abrir="${q}"`)}<p class="dica" style="margin-top:8px">${q === 'depois' ? 'Puxe a alça para baixo (fecha além de 30%) ou para cima (elástico).' : 'Sem gesto: aparece e some.'}</p></div><div class="sheet" data-sheet="${q}"><div class="alca" data-alca="${q}"></div><p><b>Compartilhar pedido</b></p><p>Escolha para quem enviar o resumo.</p><button class="b apertavel" data-sheet-fechar="${q}">Fechar</button></div>`
+const modal = q => `${bt('Abrir modal', `data-modal-abrir="${q}"`)}<div class="m-veu" data-modal="${q}"><div class="m-caixa"${q === 'depois' ? ' role="dialog" aria-modal="true" aria-label="Excluir projeto"' : ''}><p><b>Excluir projeto?</b></p><p>Essa ação tem volta por 5 segundos.</p><button class="b forte apertavel" data-modal-fechar="${q}">Entendi</button></div></div>`
+const sheet = q => `<div class="conteudo">${bt('Abrir painel', `data-sheet-abrir="${q}"`)}<p class="dica" style="margin-top:8px">${q === 'depois' ? 'Puxe a alça para baixo (fecha além de 30%) ou para cima (elástico).' : 'Sem gesto: aparece e some.'}</p></div><div class="sheet" data-sheet="${q}"${q === 'depois' ? ' role="dialog" aria-label="Compartilhar pedido"' : ''}><div class="alca" data-alca="${q}"></div><p><b>Compartilhar pedido</b></p><p>Escolha para quem enviar o resumo.</p><button class="b apertavel" data-sheet-fechar="${q}">Fechar</button></div>`
 const aviso = q => `${bt('Mostrar aviso', `data-aviso-abrir="${q}"`)}<div class="aviso" data-aviso="${q}">Pedido enviado<i></i></div>`
 const abas = () => `<div class="abas" data-abas>${['Pedidos', 'Clientes', 'Relatórios'].map((n, i) => `<button class="${i === 0 ? 'on' : ''}">${n}</button>`).join('')}<span class="ind"></span></div>`
 const liga = () => `<div class="icones"><button class="liga apertavel" role="switch" aria-checked="false" aria-label="Notificações"></button><span class="dica" data-liga-txt>Desligado</span></div>`
@@ -271,8 +276,28 @@ $$('[data-tocar]').forEach(b => b.addEventListener('click', () => {
 }))
 
 /* modal */
-$$('[data-modal-abrir]').forEach(b => b.addEventListener('click', () => $(`[data-modal="${b.dataset.modalAbrir}"]`).classList.add('aberto')))
-$$('[data-modal-fechar]').forEach(b => b.addEventListener('click', () => $(`[data-modal="${b.dataset.modalFechar}"]`).classList.remove('aberto')))
+// camada (modal e painel de baixo do Depois): Esc fecha, foco entra, Tab circula e o foco volta ao gatilho
+let camada = null
+const focaveis = r => $$('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])', r).filter(e => !e.disabled)
+const abrirCamada = (chave, raiz, gatilho, fechar) => { camada = { chave, raiz, gatilho, fechar }; focaveis(raiz)[0]?.focus({ preventScroll: true }) } // sem rolar: o painel ainda esta fora do palco (overflow hidden) quando o foco entra
+const soltarCamada = chave => { if (camada?.chave !== chave) return; const g = camada.gatilho; camada = null; g.focus() }
+document.addEventListener('keydown', e => {
+  if (!camada) return
+  if (e.key === 'Escape') { e.preventDefault(); camada.fechar(); return }
+  if (e.key !== 'Tab') return
+  const f = focaveis(camada.raiz), a = document.activeElement
+  if (!f.length) { e.preventDefault(); return }
+  if (!camada.raiz.contains(a)) { e.preventDefault(); f[0].focus() }
+  else if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus() }
+  else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus() }
+})
+const fecharModal = q => { $(`[data-modal="${q}"]`).classList.remove('aberto'); if (q === 'depois') soltarCamada('modal') }
+$$('[data-modal-abrir]').forEach(b => b.addEventListener('click', () => {
+  const q = b.dataset.modalAbrir, v = $(`[data-modal="${q}"]`)
+  v.classList.add('aberto')
+  if (q === 'depois') abrirCamada('modal', $('.m-caixa', v), b, () => fecharModal(q))
+}))
+$$('[data-modal-fechar]').forEach(b => b.addEventListener('click', () => fecharModal(b.dataset.modalFechar)))
 
 /* aviso */
 const timers = {}
@@ -329,12 +354,19 @@ $$('[data-btn]').forEach(btn => btn.addEventListener('click', async () => {
 const fmt = v => 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 $$('[data-num-tocar]').forEach(b => b.addEventListener('click', () => {
   const q = b.dataset.numTocar, el = $(`[data-num="${q}"]`)
-  const de = parseFloat(el.dataset.v ?? '1280'), para = de === 1280 ? 3947.5 : 1280
+  // alvo alterna, mas a contagem parte do que esta na tela agora (clique no meio da contagem nao pula)
+  const alvo = parseFloat(el.dataset.v ?? '1280'), para = alvo === 1280 ? 3947.5 : 1280
+  const de = el._atual ?? alvo
   el.dataset.v = para
   if (q === 'antes') { el.textContent = fmt(para); return }
+  cancelAnimationFrame(el._raf)
   const dur = msVar('--mov-contar'), t0 = performance.now()
-  const passo = agora => { const t = (agora - t0) / dur; el.textContent = fmt(contarValor(de, para, t)); if (t < 1) requestAnimationFrame(passo) }
-  requestAnimationFrame(passo)
+  const passo = agora => {
+    const t = (agora - t0) / dur
+    el._atual = contarValor(de, para, t); el.textContent = fmt(el._atual)
+    if (t < 1) el._raf = requestAnimationFrame(passo)
+  }
+  el._raf = requestAnimationFrame(passo)
 }))
 
 /* troca de icone */
@@ -342,8 +374,13 @@ $$('[data-ic]').forEach(b => b.addEventListener('click', () => b.setAttribute('a
 
 /* painel de baixo com elastico */
 const LIMITE_ELASTICO = 80
-$$('[data-sheet-abrir]').forEach(b => b.addEventListener('click', () => $(`[data-sheet="${b.dataset.sheetAbrir}"]`).classList.add('aberto')))
-$$('[data-sheet-fechar]').forEach(b => b.addEventListener('click', () => $(`[data-sheet="${b.dataset.sheetFechar}"]`).classList.remove('aberto')))
+const fecharSheet = q => { $(`[data-sheet="${q}"]`).classList.remove('aberto'); if (q === 'depois') soltarCamada('sheet') }
+$$('[data-sheet-abrir]').forEach(b => b.addEventListener('click', () => {
+  const q = b.dataset.sheetAbrir, s = $(`[data-sheet="${q}"]`)
+  s.classList.add('aberto')
+  if (q === 'depois') abrirCamada('sheet', s, b, () => fecharSheet(q))
+}))
+$$('[data-sheet-fechar]').forEach(b => b.addEventListener('click', () => fecharSheet(b.dataset.sheetFechar)))
 {
   const sheet = $('[data-sheet="depois"]'), alca = $('[data-alca="depois"]')
   let y0 = 0, dy = 0, vel = 0, ult = null, arrastando = false
@@ -364,7 +401,7 @@ $$('[data-sheet-fechar]').forEach(b => b.addEventListener('click', () => $(`[dat
     if (!arrastando) return
     arrastando = false
     sheet.style.transition = ''
-    if (dy > sheet.offsetHeight * 0.3 || vel > 0.6) { sheet.classList.remove('aberto'); sheet.style.transform = '' }
+    if (dy > sheet.offsetHeight * 0.3 || vel > 0.6) { fecharSheet('depois'); sheet.style.transform = '' }
     else {
       // volta com mola (--curva-salto passa um pouco e assenta)
       sheet.style.transition = 'transform var(--mov-lento) var(--curva-salto)'

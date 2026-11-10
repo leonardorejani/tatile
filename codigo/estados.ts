@@ -54,8 +54,12 @@ export function useAtrasoDeCarga(carregando: boolean, opcoes?: { espera?: number
 /* ---------- Estado na URL ----------
  * Aba, filtro, pagina e painel aberto vao para o endereco: recarregar, voltar e
  * compartilhar abrem na mesma tela. Valor igual ao padrao sai da URL (link limpo). */
-export function lerDaUrl(busca: string, chave: string, padrao: string) {
-  return new URLSearchParams(busca).get(chave) ?? padrao
+// URL vem de fora (link colado, valor velho, digitado a mao): valor desconhecido cai no padrao,
+// nunca quebra a tela
+export function lerDaUrl(busca: string, chave: string, padrao: string, validos?: readonly string[]) {
+  const valor = new URLSearchParams(busca).get(chave)
+  if (valor === null) return padrao
+  return validos && !validos.includes(valor) ? padrao : valor
 }
 
 export function urlCom(href: string, chave: string, valor: string, padrao: string) {
@@ -66,13 +70,13 @@ export function urlCom(href: string, chave: string, valor: string, padrao: strin
 }
 
 /** SPA (Vite). No Next, usar useSearchParams + router.replace com a mesma regra. */
-export function useEstadoNaUrl(chave: string, padrao: string) {
-  const [valor, setValor] = useState(() => (typeof location === 'undefined' ? padrao : lerDaUrl(location.search, chave, padrao)))
+export function useEstadoNaUrl(chave: string, padrao: string, validos?: readonly string[]) {
+  const [valor, setValor] = useState(() => (typeof location === 'undefined' ? padrao : lerDaUrl(location.search, chave, padrao, validos)))
   useEffect(() => {
-    const voltar = () => setValor(lerDaUrl(location.search, chave, padrao))
+    const voltar = () => setValor(lerDaUrl(location.search, chave, padrao, validos))
     addEventListener('popstate', voltar)
     return () => removeEventListener('popstate', voltar)
-  }, [chave, padrao])
+  }, [chave, padrao, validos])
   const mudar = (novo: string) => {
     setValor(novo)
     // replace: trocar aba nao enche o historico; usar push so para navegacao de verdade

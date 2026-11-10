@@ -57,6 +57,9 @@ test('nova carga durante o minimo continua mostrando, sem piscar', () => {
 test('estado na URL: le com padrao, grava e limpa quando volta ao padrao', () => {
   assert.equal(lerDaUrl('?aba=pagos', 'aba', 'todos'), 'pagos')
   assert.equal(lerDaUrl('', 'aba', 'todos'), 'todos')
+  // valor desconhecido (link velho, digitado) cai no padrao
+  assert.equal(lerDaUrl('?aba=xyz', 'aba', 'todos', ['todos', 'pagos']), 'todos')
+  assert.equal(lerDaUrl('?aba=pagos', 'aba', 'todos', ['todos', 'pagos']), 'pagos')
   assert.equal(urlCom('https://acme.app/pedidos?pagina=2#topo', 'aba', 'pagos', 'todos'), '/pedidos?pagina=2&aba=pagos#topo')
   assert.equal(urlCom('https://acme.app/pedidos?aba=pagos', 'aba', 'todos', 'todos'), '/pedidos')
   assert.equal(urlCom('https://acme.app/busca', 'q', 'cafe com leite', ''), '/busca?q=cafe+com+leite')

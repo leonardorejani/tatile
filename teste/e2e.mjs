@@ -408,6 +408,69 @@ if (ALVO !== 'rn') {
     assert.equal(await dbSalvo('dnd6'), dbAntes)
   })
 
+  await caso('arrastar: teclado, "+ texto" no meio da previa nao some com o card novo e o pego vai pra coluna', async () => {
+    await abrir('dnd9')
+    const [pego] = await titulos('rascunho')
+    await dp.locator('[data-col=rascunho] [data-testid=card]').first().focus()
+    await dp.keyboard.press(' ')
+    await dp.keyboard.press('ArrowRight')
+    await dp.click('[data-col=rascunho] [data-testid=add-text]')
+    // antes de soltar: o card novo ja aparece e a previa do pego continua em "Em andamento"
+    assert.equal(await contar('rascunho'), 1)
+    assert.deepEqual(await titulos('produzindo'), [pego])
+    assert.equal(JSON.parse(await dbSalvo('dnd9')).columns[0].cards.length, 2, 'db tem os dois cards antes de soltar')
+    await dp.locator('[data-col=produzindo] [data-testid=card]').first().focus()
+    await dp.keyboard.press(' ')
+    await dp.waitForTimeout(350)
+    assert.deepEqual(await titulos('produzindo'), [pego])
+    assert.equal(await contar('rascunho'), 1)
+    const salvo = JSON.parse(await dbSalvo('dnd9'))
+    assert.deepEqual(salvo.columns.map(c => c.cards.length), [1, 1, 0])
+    assert.equal(salvo.columns[1].cards[0].title, pego)
+  })
+
+  await caso('arrastar: Tab para fora do card pego cancela, o card volta a origem e nada e gravado', async () => {
+    await abrir('dnd10')
+    await adicionar(1)
+    const antes = await titulos('rascunho')
+    const dbAntes = await dbSalvo('dnd10')
+    await dp.locator('[data-col=rascunho] [data-testid=card]').first().focus()
+    await dp.keyboard.press(' ')
+    await dp.keyboard.press('ArrowRight')
+    assert.equal(await contar('produzindo'), 1)
+    await dp.keyboard.press('Tab')
+    assert.match(await anuncio(), /cancelado/)
+    await dp.waitForTimeout(350)
+    assert.deepEqual(await titulos('rascunho'), antes)
+    assert.equal(await contar('produzindo'), 0)
+    assert.equal(await dbSalvo('dnd10'), dbAntes)
+    // sem previa presa: "mover" age no db e o card nao fica com a marca de pego
+    await dp.click('[data-col=rascunho] [data-testid=move] >> nth=0')
+    assert.deepEqual(await titulos('produzindo'), [antes[0]])
+    assert.equal(await dp.locator('.pego').count(), 0)
+  })
+
+  await caso('arrastar: durante a previa, "mover" e "+ texto" agem e a previa continua certa', async () => {
+    await abrir('dnd11')
+    await adicionar(1)
+    const [a, b] = await titulos('rascunho')
+    await dp.locator('[data-col=rascunho] [data-testid=card]').first().focus()
+    await dp.keyboard.press(' ')
+    await dp.keyboard.press('ArrowRight') // previa: a em "Em andamento"
+    await dp.locator('[data-col=rascunho] [data-testid=card]', { hasText: b }).locator('[data-testid=move]').click() // db: b vai pra "Em andamento"
+    assert.equal(await contar('rascunho'), 0)
+    assert.deepEqual(await titulos('produzindo'), [a, b])
+    await dp.click('[data-col=concluido] [data-testid=add-text]')
+    assert.equal(await contar('concluido'), 1)
+    assert.deepEqual(await titulos('produzindo'), [a, b])
+    await dp.locator('[data-col=produzindo] [data-testid=card]').first().focus()
+    await dp.keyboard.press(' ')
+    await dp.waitForTimeout(350)
+    const salvo = JSON.parse(await dbSalvo('dnd11'))
+    assert.deepEqual(salvo.columns.map(c => c.cards.length), [0, 2, 1])
+    assert.deepEqual(salvo.columns[1].cards.map(c => c.title), [a, b])
+  })
+
   await caso('arrastar: depois de mover e recarregar, o skeleton mostra a nova contagem por coluna', async () => {
     await abrir('dnd7')
     await adicionar(2) // 3/0/0

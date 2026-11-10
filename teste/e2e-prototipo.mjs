@@ -448,6 +448,7 @@ await caso('1.2 formulario: rotulo sobe, check com salto ao sair do campo valido
   assert.equal(await tela().getAttribute('[data-enviar]', 'aria-describedby'), 'motivo')
   assert.match(await tela().textContent('#motivo'), /Preencha o e-mail/)
   assert.equal(await tela().evaluate(() => document.querySelector('[data-enviar]').disabled), false, 'nao deve usar disabled')
+  await tela().evaluate(() => document.activeElement.blur()); await page.waitForTimeout(300) // o foco agora entra no primeiro campo ao abrir: tira dele pra medir o rotulo em repouso
   const repouso = await rot()
   await tela().fill('#email', 'cliente@empresa.com'); await page.waitForTimeout(400)
   assert.notEqual(await rot(), repouso, 'rotulo nao subiu')
@@ -505,6 +506,190 @@ await caso('1.2 movimento reduzido: as transicoes e animacoes do Com zeram', asy
   assert.equal(antes, 0, 'indicador ainda anima com movimento reduzido')
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.waitForTimeout(300)
+})
+
+/* ---------- explora: falhas achadas no teste exploratorio (cada caso abre o app.html sozinho) ---------- */
+async function abrirApp(largura, query = '', altura = 800) {
+  const p = await browser.newPage({ viewport: { width: largura, height: altura } })
+  const errs = []
+  p.on('pageerror', e => errs.push(String(e)))
+  await p.goto(`${base}app.html${query}`)
+  await p.waitForSelector('[data-pedido], [data-vazio]', { timeout: 6000 })
+  await p.waitForTimeout(200)
+  return { p, errs }
+}
+async function comApp(largura, query, fn, altura) {
+  const { p, errs } = await abrirApp(largura, query, altura)
+  try { await fn(p, errs) } finally { await p.close() }
+}
+const nLinhas = p => p.$$eval('[data-pedido]', l => l.length)
+
+await caso('explora: duplo clique em Arquivar ou Duplicar executa uma vez so e Desfazer nao quebra a pagina', async () => {
+  await comApp(1280, '', async (p, errs) => {
+    await p.click('[data-acoes="1042"]'); await p.dblclick('[data-acao="arquivar"]'); await p.waitForTimeout(700)
+    assert.equal(await nLinhas(p), 3, 'arquivar rodou mais de uma vez')
+    await p.click('[data-desfazer]'); await p.waitForTimeout(300)
+    assert.equal(await nLinhas(p), 4, 'Desfazer nao devolveu o pedido')
+    await p.click('[data-acoes="1041"]'); await p.dblclick('[data-acao="duplicar"]'); await p.waitForTimeout(700)
+    assert.equal(await nLinhas(p), 5, 'duplicar rodou mais de uma vez')
+    assert.deepEqual(errs, [])
+  })
+})
+
+await caso('explora: ?aba invalida cai em "todos" e a URL e limpa; aba valida continua valendo', async () => {
+  await comApp(1280, '?aba=xyz', async (p, errs) => {
+    assert.equal(await nLinhas(p), 4); assert.ok(!p.url().includes('aba='), p.url()); assert.deepEqual(errs, [])
+    assert.equal(await p.$eval('[data-aba="todos"]', b => b.classList.contains('on')), true)
+  })
+  await comApp(1280, '?aba=pagos', async p => { assert.equal(await nLinhas(p), 2); assert.ok(p.url().includes('aba=pagos')) })
+})
+
+await caso('explora: Desfazer do cancelamento devolve o status que o pedido tinha, e cancelado nao oferece cancelar', async () => {
+  await comApp(1280, '', async (p, errs) => {
+    await p.click('[data-acoes="1041"]'); await p.click('[data-acao="cancelar"]'); await p.waitForTimeout(600)
+    const b = await (await p.$('[data-segurar]')).boundingBox()
+    await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await p.mouse.down(); await p.waitForTimeout(1300); await p.mouse.up(); await p.waitForTimeout(400)
+    const pil = () => p.$eval('[data-pedido="1041"] .pilula', e => e.textContent)
+    assert.equal(await pil(), 'Cancelado')
+    await p.click('[data-desfazer]'); await p.waitForTimeout(200)
+    assert.equal(await pil(), 'Enviado', 'Desfazer devolveu outro status')
+    await p.evaluate(() => { pedidos.find(x => x.id === 1039).status = 'cancelado'; desenhar() })
+    await p.click('[data-acoes="1039"]')
+    assert.equal(await p.$('[data-acao="cancelar"]'), null, 'pedido cancelado ainda oferece Cancelar pedido')
+    assert.deepEqual(errs, [])
+  })
+})
+
+await caso('explora: modal Novo pedido: foco entra, prende, Esc fecha, foco volta e o fundo nao rola', async () => {
+  await comApp(1280, '', async (p, errs) => {
+    await p.evaluate(() => scrollTo(0, 60)); const y0 = await p.evaluate(() => scrollY)
+    assert.ok(y0 > 0, 'pagina nao rola neste teste')
+    await p.focus('[data-abrir-form]'); await p.keyboard.press('Enter'); await p.waitForTimeout(500)
+    assert.equal(await p.evaluate(() => document.activeElement.id), 'email', 'foco nao foi pro primeiro campo')
+    for (let i = 0; i < 6; i++) { await p.keyboard.press('Tab'); assert.ok(await p.evaluate(() => !!document.activeElement.closest('.painel')), `Tab ${i + 1} saiu do painel`) }
+    await p.keyboard.press('Shift+Tab'); await p.keyboard.press('Shift+Tab'); await p.keyboard.press('Shift+Tab')
+    assert.ok(await p.evaluate(() => !!document.activeElement.closest('.painel')), 'Shift+Tab saiu do painel')
+    assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector('.painel')).overscrollBehaviorY), 'contain')
+    await p.mouse.move(40, 40); await p.mouse.wheel(0, 400); await p.waitForTimeout(200)
+    assert.equal(await p.evaluate(() => scrollY), y0, 'o fundo rolou com a roda')
+    await p.keyboard.press('Escape'); await p.waitForTimeout(600)
+    assert.equal(await p.$('.fundo-painel'), null, 'Esc nao fechou')
+    assert.equal(await p.evaluate(() => document.activeElement.matches('[data-abrir-form]')), true, 'foco nao voltou ao gatilho')
+    assert.equal(await p.evaluate(() => scrollY), y0, 'a pagina pulou')
+    await p.mouse.wheel(0, 100); await p.waitForTimeout(200)
+    assert.notEqual(await p.evaluate(() => scrollY), y0, 'a rolagem nao voltou depois de fechar')
+    assert.deepEqual(errs, [])
+  }, 500)
+})
+
+await caso('explora: Enter num item do menu devolve o foco ao gatilho, e Cancelar pelo teclado segura Enter por 1 s', async () => {
+  await comApp(1280, '', async (p, errs) => {
+    await p.focus('[data-acoes="1042"]'); await p.keyboard.press('Enter'); await p.keyboard.press('Tab'); await p.keyboard.press('Enter'); await p.waitForTimeout(700)
+    assert.equal(await p.evaluate(() => document.activeElement.dataset.acoes), '1042', 'foco nao voltou ao gatilho depois de Duplicar')
+    await p.focus('[data-acoes="1042"]'); await p.keyboard.press('Enter'); await p.keyboard.press('Tab'); await p.keyboard.press('Tab'); await p.keyboard.press('Tab'); await p.keyboard.press('Enter'); await p.waitForTimeout(700)
+    assert.ok(await p.evaluate(() => document.activeElement.matches('[data-segurar]')), 'foco nao entrou no painel de cancelar')
+    assert.match(await p.textContent('[data-segurar]'), /Enter ou Espa/, 'o botao nao diz como segurar pelo teclado')
+    await p.keyboard.down('Enter'); await p.waitForTimeout(300); await p.keyboard.up('Enter')
+    assert.match(await p.textContent('[data-msg-segurar]'), /Soltou antes/)
+    await p.keyboard.down('Space'); await p.waitForTimeout(1300); await p.keyboard.up('Space'); await p.waitForTimeout(600)
+    assert.equal(await p.evaluate(() => pedidos.find(x => x.id === 1042).status), 'cancelado', 'segurar Espaco nao cancelou')
+    assert.deepEqual(errs, [])
+  })
+})
+
+await caso('explora: erro de e-mail some quando o e-mail fica valido, e o erro ganha do verde na borda', async () => {
+  await comApp(1280, '', async (p) => {
+    await p.click('[data-abrir-form]'); await p.waitForTimeout(500)
+    await p.fill('#email', 'abc'); await p.click('[data-enviar]'); await p.waitForTimeout(100)
+    assert.ok(await p.$eval('#email', e => e.classList.contains('erro'))); assert.ok((await p.textContent('[data-erro-email]')).length > 0)
+    await p.fill('#email', 'ana@acme.com'); await p.waitForTimeout(50)
+    assert.equal(await p.$eval('#email', e => e.classList.contains('erro')), false, 'a borda vermelha ficou')
+    assert.equal(await p.textContent('[data-erro-email]'), '', 'o texto do erro ficou')
+    const cores = await p.evaluate(async () => { const e = document.getElementById('email'), pr = document.createElement('i'); pr.style.color = 'var(--perigo)'; document.body.appendChild(pr); e.classList.add('erro', 'valido'); await new Promise(r => setTimeout(r, 600)); return [getComputedStyle(e).borderTopColor, getComputedStyle(pr).color] })
+    assert.equal(cores[0], cores[1], 'valido ganhou de erro')
+  })
+})
+
+await caso('explora: o rotulo flutuante nao cobre o titulo do painel, no celular e no desktop', async () => {
+  for (const w of [390, 1280]) await comApp(w, '', async p => {
+    await p.click(w < 640 ? '[data-abrir-fab]' : '[data-abrir-form]'); await p.waitForTimeout(700)
+    await p.focus('#email'); await p.waitForTimeout(500)
+    const r = await p.evaluate(() => { const h = document.querySelector('.painel h2').getBoundingClientRect(), l = document.querySelector('[for="email"]').getBoundingClientRect(), c = document.getElementById('email').getBoundingClientRect(); return { hb: h.bottom, lt: l.top, lh: l.height, lb: l.bottom, ct: c.top } })
+    assert.ok(r.lt >= r.hb - 0.5, `${w}: rotulo (topo ${r.lt}) entra no titulo (base ${r.hb})`)
+    assert.ok(r.lh <= 24, `${w}: fundo do rotulo com ${r.lh}px, deveria ter so a altura do texto`)
+    assert.ok(r.lb <= r.ct + 12, `${w}: rotulo desce demais dentro do campo`)
+  })
+})
+
+await caso('explora: em 390, 360 e 320 a linha do pedido cabe (360 e 320 sem texto cortado), sem pilula sobre o valor', async () => {
+  for (const w of [390, 360, 320]) await comApp(w, '', async p => {
+    await p.waitForFunction(() => document.querySelector('[data-atualizar]').dataset.estado === 'parado', null, { timeout: 8000 }) // o botao ainda fecha em circulo durante a 1a carga
+    const m = await p.evaluate(() => {
+      const linhas = [...document.querySelectorAll('[data-pedido]')]
+      const rs = linhas.map(l => { const q = s => l.querySelector(s), r = s => q(s).getBoundingClientRect(), st = q('strong'), c = q('.corta'), pi = r('.pilula'), v = r('.valor'), t = l.getBoundingClientRect(); // a coluna de texto some (display: contents) abaixo de 380, entao mede contra a linha inteira
+      return { st: st.scrollWidth <= st.clientWidth + 0.5, c: c.scrollWidth <= c.clientWidth + 0.5, pw: pi.width, cx: r('.corta').left, sobre: pi.right > v.left && pi.left < v.right && pi.bottom > v.top && pi.top < v.bottom, fora: Math.max(pi.right, c.getBoundingClientRect().right) > t.right + 0.5 } })
+      const b = document.querySelector('[data-atualizar]')
+      return { rs, rol: document.documentElement.scrollWidth - innerWidth, shrink: getComputedStyle(b).flexShrink, btnCorta: b.scrollWidth > b.clientWidth + 0.5 }
+    })
+    assert.equal(m.rol, 0, `${w}: rolagem lateral`)
+    m.rs.forEach((r, i) => { if (w < 380) { assert.ok(r.st, `${w}: titulo do pedido ${i} cortado`); assert.ok(r.c, `${w}: texto de itens ${i} cortado`); assert.ok(!r.fora, `${w}: conteudo passa da coluna de texto`) }; assert.ok(!r.sobre, `${w}: pilula sobre o valor`) })
+    assert.equal(new Set(m.rs.map(r => Math.round(r.pw))).size, 1, `${w}: pilulas com larguras diferentes`)
+    assert.equal(new Set(m.rs.map(r => Math.round(r.cx))).size, 1, `${w}: texto ao lado nao comeca no mesmo x`)
+    assert.equal(m.shrink, '0', 'Atualizar encolhe'); assert.equal(m.btnCorta, false, 'Atualizar com texto cortado')
+  })
+})
+
+await caso('explora: contraste >= 4,5 no Com (pilulas e item ativo do menu), claro e escuro', async () => {
+  for (const tema of ['claro', 'escuro']) await comApp(1280, '', async p => {
+    await p.evaluate(t => { tatileTema(t); pedidos[3].status = 'cancelado'; desenhar() }, tema); await p.waitForTimeout(600)
+    const r = await p.evaluate(() => {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 1; const g = cv.getContext('2d', { willReadFrequently: true })
+      const px = fn => { g.clearRect(0, 0, 1, 1); fn(); return [...g.getImageData(0, 0, 1, 1).data].slice(0, 3) }
+      const fundo = el => { const cs = []; for (let n = el; n; n = n.parentElement) cs.unshift(getComputedStyle(n).backgroundColor); return px(() => { g.fillStyle = '#fff'; g.fillRect(0, 0, 1, 1); cs.forEach(c => { g.fillStyle = c; g.fillRect(0, 0, 1, 1) }) }) }
+      const lum = c => { const [r, gg, b] = c.map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4 }); return .2126 * r + .7152 * gg + .0722 * b }
+      const ct = el => { const bg = fundo(el), fg = px(() => { g.fillStyle = `rgb(${bg})`; g.fillRect(0, 0, 1, 1); g.fillStyle = getComputedStyle(el).color; g.fillRect(0, 0, 1, 1) }); const [a, b] = [lum(fg), lum(bg)]; return (Math.max(a, b) + .05) / (Math.min(a, b) + .05) }
+      const o = {}
+      for (const el of document.querySelectorAll('.pilula')) o['pilula ' + el.textContent] = ct(el)
+      o['menu ativo'] = ct(document.querySelector('.lateral nav a.ativo'))
+      return o
+    })
+    for (const [k, v] of Object.entries(r)) assert.ok(v >= 4.5, `${tema}: ${k} com contraste ${v.toFixed(2)}`)
+    assert.ok(Object.keys(r).length >= 4, 'faltou medir alguma pilula')
+  })
+})
+
+await caso('explora: o spinner so anima enquanto carrega (nem invisivel gira)', async () => {
+  await comApp(1280, '', async p => {
+    await p.waitForFunction(() => document.querySelector('[data-atualizar]').dataset.estado === 'parado', null, { timeout: 8000 })
+    assert.equal(await p.evaluate(() => document.querySelector('[data-atualizar] .spin').getAnimations().length), 0, 'spinner parado animando')
+    await p.click('[data-atualizar]'); await p.waitForFunction(() => document.querySelector('[data-atualizar]').dataset.estado === 'carregando', null, { timeout: 3000 })
+    assert.ok(await p.evaluate(() => document.querySelector('[data-atualizar] .spin').getAnimations().length) > 0, 'spinner carregando nao anima')
+  })
+})
+
+await caso('explora: Criar pedido cria o pedido (numero seguinte, Pago) e o aviso fica acima do botao + no celular', async () => {
+  await comApp(390, '', async (p, errs) => {
+    await p.click('[data-abrir-fab]'); await p.waitForTimeout(700)
+    await p.fill('#email', 'ana@acme.com'); await p.fill('#valor', '75,50'); await p.click('[data-enviar]')
+    await p.waitForSelector('.aviso', { timeout: 6000 }); await p.waitForTimeout(500)
+    assert.equal(await nLinhas(p), 5, 'o pedido nao entrou na lista')
+    const novo = await p.evaluate(() => { const l = document.querySelector('[data-pedido]'); return [l.dataset.pedido, l.querySelector('.pilula').textContent, l.querySelector('.valor').textContent.replace(/\s/g, ' ')] })
+    assert.deepEqual(novo, ['1043', 'Pago', 'R$ 75,50'])
+    const r = await p.evaluate(() => ({ a: document.querySelector('.aviso').getBoundingClientRect().bottom, f: document.querySelector('.fab').getBoundingClientRect().top }))
+    assert.ok(r.a <= r.f, `aviso (base ${r.a}) cobre o botao + (topo ${r.f})`)
+    assert.deepEqual(errs, [])
+  })
+})
+
+await caso('explora: abas tem role tab, aria-selected acompanha a aba ativa e aria-controls aponta pro painel', async () => {
+  await comApp(1280, '', async p => {
+    const ler = () => p.$$eval('[data-aba]', bs => bs.map(b => [b.getAttribute('role'), b.getAttribute('aria-selected'), b.getAttribute('aria-controls'), !!document.getElementById(b.getAttribute('aria-controls') || '_')]))
+    let a = await ler()
+    assert.ok(a.every(x => x[0] === 'tab' && x[3]), JSON.stringify(a)); assert.deepEqual(a.map(x => x[1]), ['true', 'false', 'false', 'false'])
+    assert.equal(await p.$eval('[data-lista]', l => l.getAttribute('role')), 'tabpanel')
+    await p.click('[data-aba="enviados"]'); a = await ler()
+    assert.deepEqual(a.map(x => x[1]), ['false', 'false', 'true', 'false'])
+  })
 })
 
 await caso('nenhum erro de pagina ou console', async () => assert.deepEqual(erros, []))

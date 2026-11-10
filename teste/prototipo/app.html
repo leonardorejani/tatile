@@ -58,7 +58,7 @@
     .lateral strong { padding: 0 12px 16px; }
     .lateral nav { display: flex; flex-direction: column; gap: 4px; }
     .lateral nav a { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: var(--raio-sm); color: var(--texto-2); text-decoration: none; font-size: var(--texto-base); }
-    .lateral nav a.ativo { background: var(--destaque-suave); color: var(--destaque); font-weight: 600; }
+    .lateral nav a.ativo { background: var(--destaque-suave); color: color-mix(in srgb, var(--destaque) 82%, var(--texto)); font-weight: 600; }
     .lateral nav i { width: 18px; height: 18px; border-radius: 5px; background: currentColor; opacity: .3; }
   }
   main { flex: 1; min-width: 0; }
@@ -70,7 +70,7 @@
   h1 { margin: 4px 0 0; font-size: var(--texto-2xl); max-width: 640px; }
   h2 { margin: 0; font-size: var(--texto-md); }
   .botao { flex: none; min-height: 44px; padding: 0 18px; border: 0; border-radius: var(--raio); background: var(--destaque); color: var(--destaque-texto); font-weight: 600; font-size: var(--texto-base); }
-  .botao-sec { min-height: 36px; padding: 0 14px; border: 0; border-radius: var(--raio-sm); background: var(--superficie-2); color: var(--texto); font-weight: 600; font-size: var(--texto-sm); }
+  .botao-sec { flex: none; min-height: 36px; padding: 0 14px; border: 0; border-radius: var(--raio-sm); background: var(--superficie-2); color: var(--texto); font-weight: 600; font-size: var(--texto-sm); }
   @media (max-width: 639px) { .topo .botao { display: none; } }
 
   .card { background: var(--superficie); color: var(--texto); border-radius: var(--raio-card); padding: var(--pad); box-shadow: var(--sombra-1); border: 1px solid transparent; }
@@ -107,15 +107,27 @@
   .linha-texto .sub { display: flex; align-items: center; gap: 8px; margin-top: 4px; white-space: nowrap; }
   .corta { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     /* largura fixa: o texto ao lado comeca sempre no mesmo x. Ponto + contorno: le de longe */
-  .pilula { --c: var(--sucesso); flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 92px; height: 22px; padding: 0 8px; font-size: var(--texto-xs); font-weight: 700; line-height: 1; border-radius: var(--raio-pilula); color: var(--c); background: color-mix(in srgb, var(--c) 16%, var(--superficie)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 40%, transparent); }
+  .pilula { --c: var(--sucesso); flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 92px; height: 22px; padding: 0 8px; font-size: var(--texto-xs); font-weight: 700; line-height: 1; border-radius: var(--raio-pilula); color: color-mix(in srgb, var(--c) 72%, var(--texto)); background: color-mix(in srgb, var(--c) 16%, var(--superficie)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 40%, transparent); }
   .pilula::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
   .pilula.enviado { --c: var(--destaque); }
   .pilula.cancelado { --c: var(--perigo); }
   @supports (text-box: trim-both cap alphabetic) { body[data-versao="com"] .pilula { text-box: trim-both cap alphabetic; } }
-  body[data-versao="sem"] .pilula { min-width: 0; height: auto; padding: 3px 8px; background: var(--sucesso-suave); box-shadow: none; }
+  body[data-versao="sem"] .pilula { color: var(--c); min-width: 0; height: auto; padding: 3px 8px; background: var(--sucesso-suave); box-shadow: none; }
   body[data-versao="sem"] .pilula.enviado { background: var(--destaque-suave); }
   body[data-versao="sem"] .pilula::before { display: none; }
   .valor { flex: none; white-space: nowrap; font-weight: 600; font-size: var(--texto-base); }
+  /* telas estreitas (so no Com, abaixo de 380): a linha vira grade de 3 linhas. Titulo e "..." em cima, pilula e valor no meio,
+     texto de itens embaixo. Pilula e itens comecam sempre no mesmo x e as pilulas tem a mesma largura */
+  @media (max-width: 379px) {
+    body[data-versao="com"] .linha { display: grid; grid-template-columns: 40px minmax(0, 1fr) 28px; column-gap: var(--icone); row-gap: 2px; align-items: center; }
+    body[data-versao="com"] .linha-texto, body[data-versao="com"] .linha-texto .sub { display: contents; }
+    body[data-versao="com"] .miniatura { grid-column: 1; grid-row: 1 / 4; }
+    body[data-versao="com"] .linha-texto strong { grid-column: 2; grid-row: 1; }
+    body[data-versao="com"] .acoes-linha { grid-column: 3; grid-row: 1; }
+    body[data-versao="com"] .pilula { grid-column: 2; grid-row: 2; justify-self: start; min-width: 84px; padding: 0 4px; gap: 4px; }
+    body[data-versao="com"] .valor { grid-column: 2 / -1; grid-row: 2; justify-self: end; }
+    body[data-versao="com"] .corta { grid-column: 2 / -1; grid-row: 3; }
+  }
   .acoes-linha { position: relative; flex: none; width: 28px; height: 28px; border: 0; border-radius: var(--raio-sm); background: transparent; color: var(--texto-2); display: grid; place-items: center; }
   .acoes-linha svg { width: 16px; height: 16px; }
 
@@ -151,6 +163,7 @@
   body[data-versao="sem"] .promo { background: #2563eb; color: #fff; border: 0; }
 
   .aviso { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 20; display: flex; align-items: center; gap: 16px; padding: 10px 14px; border-radius: var(--raio); background: var(--texto); color: var(--fundo); font-size: var(--texto-sm); box-shadow: var(--sombra-3); white-space: nowrap; overflow: hidden; }
+  @media (max-width: 639px) { body[data-versao="com"] .aviso { bottom: 88px; } } /* acima do botao + (16 + 56 + 16) */
   .aviso button { border: 0; background: none; color: var(--destaque-suave); font-weight: 700; }
   /* Com: entra deslizando 16px com fade, sai mais rapido, e uma barra de 3px (linear) mostra quanto falta */
   .aviso i { display: none; }
@@ -161,9 +174,9 @@
   @keyframes aviso-sai { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 16px; } }
   @keyframes barra { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
-  .fundo-painel { position: fixed; inset: 0; z-index: 30; background: rgb(0 0 0 / .45); display: grid; place-items: end center; }
+  .fundo-painel { overscroll-behavior: contain; position: fixed; inset: 0; z-index: 30; background: rgb(0 0 0 / .45); display: grid; place-items: end center; }
   @media (min-width: 640px) { .fundo-painel { place-items: center; } }
-  .painel { width: min(440px, 100%); background: var(--superficie); color: var(--texto); border-radius: var(--raio-card) var(--raio-card) 0 0; padding: var(--pad); display: flex; flex-direction: column; gap: var(--item); border: 1px solid transparent; }
+  .painel { overscroll-behavior: contain; width: min(440px, 100%); background: var(--superficie); color: var(--texto); border-radius: var(--raio-card) var(--raio-card) 0 0; padding: var(--pad); display: flex; flex-direction: column; gap: var(--item); border: 1px solid transparent; }
   @media (min-width: 640px) { .painel { border-radius: var(--raio-card); } }
   .painel h2 { font-size: var(--texto-lg); }
   /* Com: celular = painel de baixo (sobe em --mov-lento, segue o dedo, elastico no topo). Tablet e desktop = modal que cresce de .9 */
@@ -188,10 +201,9 @@
   .flut .campo { padding-right: 44px; }
   .flut .campo::placeholder { opacity: 0; }
   .flut .campo:focus::placeholder { opacity: 1; }
-  .rot-flut { position: absolute; left: 8px; top: 0; height: 44px; max-width: calc(100% - 52px); display: flex; align-items: center; padding: 0 4px; font-size: 16px; color: var(--texto-2); background: transparent; pointer-events: none; white-space: nowrap; transform-origin: left center; transition: transform var(--mov-rapido) var(--curva-move), color var(--mov-rapido) var(--curva-move), background-color var(--mov-rapido) var(--curva-move); }
-  .flut .campo:focus + .rot-flut, .flut .campo:not(:placeholder-shown) + .rot-flut, .flut .campo:autofill + .rot-flut { transform: translateY(-22px) scale(.8); background: var(--superficie); }
+  .rot-flut { position: absolute; left: 8px; top: 22px; max-width: calc(100% - 52px); padding: 0 4px; font-size: 16px; line-height: 1.25; color: var(--texto-2); background: transparent; pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform: translateY(-50%); transform-origin: left center; transition: transform var(--mov-rapido) var(--curva-move), color var(--mov-rapido) var(--curva-move), background-color var(--mov-rapido) var(--curva-move); }
+  .flut .campo:focus + .rot-flut, .flut .campo:not(:placeholder-shown) + .rot-flut, .flut .campo:autofill + .rot-flut { transform: translateY(calc(-50% - 22px)) scale(.8); background: var(--superficie); }
   .flut .campo:focus + .rot-flut { color: var(--destaque); }
-  .campo.valido { border-color: var(--sucesso); }
   /* check com salto: so confirmacao pequena (--curva-salto) */
   .ok-campo { position: absolute; right: 12px; top: 11px; width: 22px; height: 22px; fill: none; stroke: var(--sucesso); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.6); pointer-events: none; transition: transform var(--mov-padrao) var(--curva-salto), opacity var(--mov-rapido) var(--curva-move); }
   .flut[data-valido="true"] .ok-campo { opacity: 1; transform: none; }
@@ -203,7 +215,7 @@
   .btn-c > * { grid-area: 1 / 1; }
   .btn-c .rot { padding: 0 18px; white-space: nowrap; }
   .btn-c .spin, .btn-c .ok { width: 22px; height: 22px; opacity: 0; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-  .btn-c .spin { animation: gira 800ms linear infinite; }
+  .btn-c[data-estado="carregando"] .spin { animation: gira 800ms linear infinite; }
   .btn-c .ok path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset var(--mov-padrao) var(--curva-move); }
   body[data-versao="com"] .btn-c { transition: width var(--mov-padrao) var(--curva-move), background-color var(--mov-padrao) var(--curva-move), border-radius var(--mov-padrao) var(--curva-move), transform var(--mov-rapido) var(--curva-move); }
   .btn-c > * { transition: opacity var(--mov-rapido) var(--curva-move); }
@@ -220,6 +232,8 @@
   .fab svg { width: 24px; height: 24px; }
   @media (max-width: 639px) { body[data-versao="com"] .fab { display: grid; } }
   .campo { width: 100%; height: 44px; border: 1px solid var(--borda); border-radius: var(--raio-sm); padding: 0 12px; background: var(--fundo); color: var(--texto); font-size: 16px; }
+  .campo.valido { border-color: var(--sucesso); }
+  /* depois do .valido: o erro ganha */
   .campo.erro { border-color: var(--perigo); }
   .erro-campo { color: var(--perigo); font-size: var(--texto-sm); min-height: 18px; }
   .erro-topo { background: #fde8e8; color: #b42318; font-size: 13px; padding: 8px 10px; border-radius: 6px; }
@@ -228,7 +242,8 @@
   .segurar i { position: absolute; inset: 0; width: 0; background: rgb(180 35 24 / .18); }
   .segurar.segurando i { width: 100%; transition: width 1s linear; }
   .segurar span { position: relative; }
-  @media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } body[data-versao="com"] .aviso i { display: none; } .btn-c .spin { animation: none; } .sk { animation: none; } }
+  .so-leitor { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } body[data-versao="com"] .aviso i { display: none; } .btn-c[data-estado="carregando"] .spin { animation: none; } .sk { animation: none; } }
 </style>
 </head>
 <body data-versao="com" data-velocidade="lento">
@@ -264,16 +279,16 @@
 
       <section aria-label="Pedidos">
         <div class="titulo-secao">
-          <div class="abas" role="tablist">
-            <button class="aba apertavel on" data-aba="todos">Todos</button>
-            <button class="aba apertavel" data-aba="pagos">Pagos</button>
-            <button class="aba apertavel" data-aba="enviados">Enviados</button>
-            <button class="aba apertavel" data-aba="cancelados">Cancelados</button>
+          <div class="abas" role="tablist" aria-label="Filtrar pedidos">
+            <button class="aba apertavel on" role="tab" aria-controls="painel-pedidos" data-aba="todos">Todos</button>
+            <button class="aba apertavel" role="tab" aria-controls="painel-pedidos" data-aba="pagos">Pagos</button>
+            <button class="aba apertavel" role="tab" aria-controls="painel-pedidos" data-aba="enviados">Enviados</button>
+            <button class="aba apertavel" role="tab" aria-controls="painel-pedidos" data-aba="cancelados">Cancelados</button>
             <span class="ind" aria-hidden="true"></span>
           </div>
           <button class="botao-sec btn-c apertavel" data-atualizar data-estado="parado"><span class="rot">Atualizar</span><svg class="spin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="40 100"/></svg><svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7"/></svg></button>
         </div>
-        <div class="lista" data-lista></div>
+        <div class="lista" id="painel-pedidos" role="tabpanel" data-lista></div>
       </section>
 
       <div class="espaco"></div>
@@ -336,8 +351,11 @@
     { id: 1040, itens: '5 itens · boleto', valor: 612.4, status: 'pago' },
     { id: 1039, itens: '2 itens · Pix', valor: 98.0, status: 'enviado' },
   ]
-  const urlAba = () => new URLSearchParams(location.search).get('aba') || 'todos'
+  // mesma regra de lerDaUrl(busca, chave, padrao, validos) de codigo/estados.ts: valor fora da lista cai no padrao
+  const ABAS = ['todos', 'pagos', 'enviados', 'cancelados']
+  const urlAba = () => { const v = new URLSearchParams(location.search).get('aba'); return v !== null && ABAS.includes(v) ? v : 'todos' }
   let aba = urlAba()
+  if (new URLSearchParams(location.search).has('aba') && (aba === 'todos' || !ABAS.includes(aba))) { const u = new URL(location.href); u.searchParams.delete('aba'); history.replaceState(null, '', u.pathname + u.search + u.hash) }
 
   const lista = document.querySelector('[data-lista]')
   const skLinha = `<div class="linha" data-sk><div class="miniatura sk"></div><div class="linha-texto"><div class="sk" style="height:12px;width:40%"></div><div class="sk" style="height:10px;width:28%;margin-top:6px"></div></div><div class="sk" style="height:12px;width:56px"></div></div>`
@@ -348,7 +366,7 @@
     return n === 0 ? skVazio : skLinha.repeat(n)
   }
   function desenhar() {
-    const filtro = { todos: () => true, pagos: p => p.status === 'pago', enviados: p => p.status === 'enviado', cancelados: p => p.status === 'cancelado' }[aba]
+    const filtro = { todos: () => true, pagos: p => p.status === 'pago', enviados: p => p.status === 'enviado', cancelados: p => p.status === 'cancelado' }[aba] ?? (() => true)
     const vis = pedidos.filter(filtro)
     window.tatileForma?.gravar(aba, vis.length)
     if (!vis.length) {
@@ -403,7 +421,7 @@
     ind.style.setProperty('--x', b.offsetLeft + 'px'); ind.style.setProperty('--w', b.offsetWidth + 'px'); ind.style.setProperty('--h', b.offsetHeight + 'px')
     if (!animar) { void ind.offsetWidth; ind.style.transition = '' }
   }
-  function marcarAba(animar = false) { document.querySelectorAll('[data-aba]').forEach(b => b.classList.toggle('on', b.dataset.aba === aba)); posicionarAba(animar) }
+  function marcarAba(animar = false) { document.querySelectorAll('[data-aba]').forEach(b => { b.classList.toggle('on', b.dataset.aba === aba); b.setAttribute('aria-selected', String(b.dataset.aba === aba)) }); posicionarAba(animar) }
   function fadeAbas() {
     const esq = com() && abasEl.scrollLeft > 1, dir = com() && abasEl.scrollLeft + abasEl.clientWidth < abasEl.scrollWidth - 1
     const f = esq && dir ? 'ambos' : esq ? 'esq' : dir ? 'dir' : ''
@@ -423,20 +441,29 @@
   lista.addEventListener('click', e => { if (e.target.closest('[data-ir-todos]')) document.querySelector('[data-aba="todos"]').click() })
 
   /* ---------- menu de acoes: no Com abre no pointerdown (teclado segue no click, que vem com detail 0) ---------- */
-  let menuAberto = null
-  function fecharMenu() { menuAberto?.remove(); menuAberto = null }
+  let menuAberto = null, menuGatilho = null
+  function fecharMenu() {
+    if (menuAberto?.contains(document.activeElement) && menuGatilho?.isConnected) menuGatilho.focus() // o item sumiu: o foco volta pro "..."
+    menuAberto?.remove(); menuAberto = null
+  }
   function abrirMenu(b) {
     fecharMenu()
     const id = Number(b.dataset.acoes)
     const m = document.createElement('div'); m.className = 'menu'; m.dataset.menu = id
-    m.innerHTML = `<button class="apertavel" data-acao="duplicar">Duplicar</button><button class="apertavel" data-acao="arquivar">Arquivar</button><button class="apertavel perigo" data-acao="cancelar">Cancelar pedido</button>`
+    const jaCancelado = pedidos.find(x => x.id === id)?.status === 'cancelado'
+    m.innerHTML = `<button class="apertavel" data-acao="duplicar">Duplicar</button><button class="apertavel" data-acao="arquivar">Arquivar</button>${jaCancelado ? '' : '<button class="apertavel perigo" data-acao="cancelar">Cancelar pedido</button>'}`
     b.closest('.linha').style.position = 'relative'
     m.style.top = (b.offsetTop + b.offsetHeight + 4) + 'px'
-    b.closest('.linha').appendChild(m); menuAberto = m
+    b.closest('.linha').appendChild(m); menuAberto = m; menuGatilho = b
+    let escolheu = false // um clique, uma acao: depois da primeira escolha o menu nao aceita outra
     m.addEventListener('click', ev => {
       const item = ev.target.closest('[data-acao]'); if (!item) return
       ev.stopPropagation()
-      const executar = () => { fecharMenu(); acao(item.dataset.acao, id) }
+      if (escolheu) return; escolheu = true
+      const executar = () => {
+        fecharMenu(); acao(item.dataset.acao, id)
+        if (document.activeElement === document.body) document.querySelector(`[data-acoes="${id}"]`)?.focus() // a lista redesenhou: foco volta ao "..."
+      }
       if (com()) { item.classList.add('escolhido'); setTimeout(executar, msVar('--mov-padrao')) } else executar()
     })
   }
@@ -471,6 +498,7 @@
 
   function acao(qual, id) {
     const p = pedidos.find(x => x.id === id)
+    if (!p) return // o pedido ja saiu da lista (arquivado, por exemplo)
     if (qual === 'duplicar') {
       pedidos = [{ ...p, id: Math.max(...pedidos.map(x => x.id)) + 1 }, ...pedidos]; desenhar()
       if (com()) avisar('Pedido duplicado')
@@ -480,7 +508,7 @@
         // otimista: some na hora, Desfazer devolve na mesma posicao
         const pos = pedidos.indexOf(p)
         pedidos = pedidos.filter(x => x !== p); desenhar()
-        avisar(`Pedido #${id} arquivado`, () => { pedidos.splice(pos, 0, p); desenhar() })
+        avisar(`Pedido #${id} arquivado`, () => { if (!pedidos.includes(p)) { pedidos.splice(Math.min(pos, pedidos.length), 0, p); desenhar() } })
       } else {
         const linha = lista.querySelector(`[data-pedido="${id}"] .valor`); if (linha) linha.textContent = 'Arquivando...'
         setTimeout(() => { pedidos = pedidos.filter(x => x !== p); desenhar() }, 1200)
@@ -489,32 +517,67 @@
     if (qual === 'cancelar') {
       if (!com()) { p.status = 'cancelado'; desenhar(); return } // um toque, sem volta
       abrirPainel(`<h2>Cancelar pedido #${id}?</h2><p class="sub" style="margin:0">O cliente é avisado e o estoque volta.</p>
-        <button class="segurar apertavel" data-segurar><i></i><span>Segure para cancelar</span></button><span class="sub" data-msg-segurar></span>
+        <button class="segurar apertavel" data-segurar><i></i><span>Segure para cancelar<span class="so-leitor">. Com o teclado, segure Enter ou Espaço por 1 segundo.</span></span></button><span class="sub" data-msg-segurar></span>
         <button class="botao-sec apertavel" data-fechar>Voltar</button>`)
       const s = document.querySelector('[data-segurar]'), msg = document.querySelector('[data-msg-segurar]')
       let t
       const solta = () => { s.classList.remove('segurando'); clearTimeout(t) }
-      s.addEventListener('pointerdown', () => { s.classList.add('segurando'); t = setTimeout(() => { solta(); fecharPainel(); p.status = 'cancelado'; desenhar(); avisar(`Pedido #${id} cancelado`, () => { p.status = 'pago'; desenhar() }) }, 1000) })
-      s.addEventListener('pointerup', () => { if (s.classList.contains('segurando')) msg.textContent = 'Soltou antes: nada mudou.'; solta() })
+      const antes = p.status
+      const comeca = () => { if (s.classList.contains('segurando')) return; s.classList.add('segurando'); t = setTimeout(() => { solta(); fecharPainel(); p.status = 'cancelado'; desenhar(); avisar(`Pedido #${id} cancelado`, () => { p.status = antes; desenhar() }) }, 1000) }
+      const larga = () => { if (s.classList.contains('segurando')) msg.textContent = 'Soltou antes: nada mudou.'; solta() }
+      s.addEventListener('pointerdown', comeca)
+      s.addEventListener('pointerup', larga)
       s.addEventListener('pointerleave', solta)
+      // teclado: Enter ou Espaco segurados por 1 s fazem o mesmo (preventDefault nos dois evita o click de Enter/Espaco)
+      const tecla = e => e.key === 'Enter' || e.key === ' '
+      s.addEventListener('keydown', e => { if (!tecla(e)) return; e.preventDefault(); if (!e.repeat) comeca() })
+      s.addEventListener('keyup', e => { if (!tecla(e)) return; e.preventDefault(); larga() })
+      s.addEventListener('blur', solta)
     }
   }
 
   /* ---------- painel (formulario e confirmacao) ---------- */
   // Com: celular = painel de baixo com elastico, tablet e desktop = modal. Sem: aparece e some.
+  const FOCAVEIS = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
+  let gatilhoPainel = null
+  const travarScroll = on => { document.documentElement.style.overflow = on ? 'hidden' : '' } // sem pular: a posicao nao muda e a barra ja e oculta
+  function devolverFoco() {
+    const g = gatilhoPainel; gatilhoPainel = null; if (!g) return
+    const el = g.el.isConnected ? g.el : g.sel ? document.querySelector(g.sel) : null
+    el?.focus({ preventScroll: true })
+  }
   function abrirPainel(html) {
     document.querySelectorAll('.fundo-painel').forEach(x => x.remove())
     const c = com(), folha = c && celular()
+    const ativo = document.activeElement
+    if (c && ativo && ativo !== document.body) gatilhoPainel = { el: ativo, sel: ativo.dataset?.acoes ? `[data-acoes="${ativo.dataset.acoes}"]` : null }
     const f = document.createElement('div'); f.className = 'fundo-painel'
     f.innerHTML = `<div class="painel" role="dialog" aria-modal="true">${folha ? '<div class="alca" data-alca></div>' : ''}${html}</div>`
     f.addEventListener('click', e => { if (e.target === f || e.target.closest('[data-fechar]')) fecharPainel() })
     document.body.appendChild(f)
-    if (c) { void f.offsetWidth; f.classList.add('aberto') } // o reflow faz a transicao partir do estado fechado
+    if (c) {
+      void f.offsetWidth; f.classList.add('aberto') // o reflow faz a transicao partir do estado fechado
+      travarScroll(true)
+      // fundo nao rola (roda e toque): so o que esta fora do painel e barrado
+      for (const ev of ['wheel', 'touchmove']) f.addEventListener(ev, e => { if (e.target === f) e.preventDefault() }, { passive: false })
+      f.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { e.preventDefault(); fecharPainel(); return }
+        if (e.key !== 'Tab') return
+        const itens = [...f.querySelectorAll(FOCAVEIS)].filter(x => x.offsetParent !== null || x === document.activeElement)
+        if (!itens.length) return
+        const a = itens[0], z = itens[itens.length - 1]
+        if (!f.contains(document.activeElement)) { e.preventDefault(); a.focus() }
+        else if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus() }
+        else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus() }
+      })
+      ;(f.querySelector('input, [data-segurar], button') ?? f.querySelector('.painel')).focus({ preventScroll: true })
+    }
     if (folha) arrastarPainel(f.querySelector('.painel'), f.querySelector('[data-alca]'))
     return f
   }
   function fecharPainel() {
     const f = document.querySelector('.fundo-painel:not(.saindo)'); if (!f) return
+    travarScroll(false); devolverFoco()
     if (!com()) { f.remove(); return }
     f.classList.remove('aberto'); f.classList.add('saindo')
     setTimeout(() => f.remove(), msVar(celular() ? '--mov-sai-lento' : '--mov-sai-padrao') + 30)
@@ -592,6 +655,7 @@
         const falta = !email.value.trim()
         enviar.setAttribute('aria-disabled', String(falta)); motivo.textContent = falta ? MOTIVO : ''
         if (!valido()) { flut.dataset.valido = 'false'; email.classList.remove('valido') }
+        else { email.classList.remove('erro'); document.querySelector('[data-erro-email]').textContent = '' } // corrigiu: o erro some
       }
       email.addEventListener('input', atualizar)
       // ao sair do campo com valor valido: borda verde e o check entra com salto
@@ -601,7 +665,9 @@
       if (c && enviar.getAttribute('aria-disabled') === 'true') return
       if (valido()) {
         if (c) { await enviarAnimado(enviar); if (!enviar.isConnected) return }
-        fecharPainel(); avisar('Pedido criado'); return
+        const v = parseFloat(document.getElementById('valor').value.replace(/\./g, '').replace(',', '.'))
+        pedidos = [{ id: Math.max(0, ...pedidos.map(x => x.id)) + 1, itens: '1 item · Pix', valor: Number.isFinite(v) ? v : 0, status: 'pago' }, ...pedidos]
+        fecharPainel(); desenhar(); avisar('Pedido criado'); return
       }
       if (c) {
         email.classList.add('erro'); email.focus()

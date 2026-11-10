@@ -10,7 +10,11 @@
 // - Mouse pega o card inteiro. Toque so pega pela alca ([data-alca], touch-action:none no CSS): o resto do card
 //   continua rolando a pagina, e press-and-hold de 200ms brigaria com o menu de contexto e a rolagem do celular.
 // - Teclado: card focavel, espaco pega/solta, setas movem, Esc cancela. Mudanca fica em previa e so vai pro db ao soltar.
-import { useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
+//   A previa NAO e copia do db: guarda so o movimento (id, coluna, indice) e a cada render aplica esse movimento no db atual.
+//   Assim "+ texto", "mover" ou qualquer update durante a previa continua valendo, e ao soltar o movimento cai no db de agora.
+//   Card pego que some do db cancela. Tab para fora do card pego cancela. Clicar num botao nao cancela (mover e + texto
+//   agem durante a previa): o card segue pego e espaco nele solta.
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { flushSync } from 'react-dom'
 
 export type Board = { columns: { id: string; label: string; cards: { id: string; title: string }[] }[] }
@@ -109,10 +113,61 @@ function destino(root: HTMLElement, id: string, r: DOMRect, px: number, py: numb
 export function useArrastar<D extends Board>(db: D | null, update: (next: D) => void) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [drag, setDrag] = useState<Drag | null>(null)
-  const [kb, setKb] = useState<{ id: string; board: D } | null>(null)
+  const [kb, setKb] = useState<{ id: string; col: number; index: number } | null>(null)
   const [anuncio, setAnuncio] = useState('')
   const dbRef = useRef(db)
   dbRef.current = db
+  const kbRef = useRef(kb)
+  kbRef.current = kb
+  const botaoApontado = useRef(false)
+
+  // Previa do teclado: o movimento aplicado sobre o db DE AGORA (nunca uma foto velha dele)
+  const previa = useMemo(() => {
+    if (!kb || !db || !achar(db, kb.id)) return db
+    const col = Math.max(0, Math.min(kb.col, db.columns.length - 1))
+    return mover(db, kb.id, col, Math.max(0, kb.index))
+  }, [kb, db])
+
+  const cancelarTeclado = (refocar: boolean) => {
+    const k = kbRef.current
+    const root = rootRef.current
+    const b = dbRef.current
+    if (!k) return
+    if (root) antes.current = snap(root)
+    if (refocar) foco.current = k.id
+    const at = b && achar(b, k.id)
+    setKb(null)
+    setAnuncio(`${at && b ? b.columns[at.col].cards[at.i].title : 'Card'}: cancelado`)
+  }
+
+  // Card pego que deixou de existir no db: cancela
+  useEffect(() => {
+    if (kb && db && !achar(db, kb.id)) cancelarTeclado(false)
+  })
+
+  // Com um card pego no teclado, foco que sai dele cancela. Clique em botao (mover, + texto) nao: age na previa.
+  useEffect(() => {
+    if (!kb) return
+    const ptr = (e: Event) => {
+      const t = e.target as HTMLElement
+      botaoApontado.current = !!t.closest?.('button')
+      if (!botaoApontado.current && !t.closest?.(`[data-id="${CSS.escape(kb.id)}"]`)) cancelarTeclado(false)
+    }
+    const soltou = () => setTimeout(() => (botaoApontado.current = false), 0)
+    const foi = (e: FocusEvent) => {
+      const t = e.target as HTMLElement
+      if (t.dataset?.id === kb.id || botaoApontado.current) return
+      cancelarTeclado(false)
+    }
+    window.addEventListener('pointerdown', ptr, true)
+    window.addEventListener('pointerup', soltou, true)
+    window.addEventListener('focusin', foi)
+    return () => {
+      window.removeEventListener('pointerdown', ptr, true)
+      window.removeEventListener('pointerup', soltou, true)
+      window.removeEventListener('focusin', foi)
+    }
+  }, [kb?.id])
   const antes = useRef<Map<string, DOMRect> | null>(null)
   const pular = useRef<string | undefined>(undefined)
   const assentar = useRef<{ id: string; cx: number; cy: number; sombra: string } | null>(null)
@@ -215,7 +270,8 @@ export function useArrastar<D extends Board>(db: D | null, update: (next: D) => 
     const root = rootRef.current
     const b = dbRef.current
     if (e.target !== e.currentTarget || !root || !b || drag) return
-    const base = kb?.board ?? b
+    if (kb && kb.id !== id) return
+    const base = previa!
     const at = achar(base, id)!
     const { title } = base.columns[at.col].cards[at.i]
     const posicao = (bd: D) => {
@@ -225,12 +281,12 @@ export function useArrastar<D extends Board>(db: D | null, update: (next: D) => 
     if (e.key === ' ') {
       e.preventDefault()
       if (!kb) {
-        setKb({ id, board: b })
+        setKb({ id, col: at.col, index: at.i })
         setAnuncio(`${title} pego`)
       } else {
         const o = achar(b, id)!
         setKb(null)
-        if (o.col !== at.col || o.i !== at.i) update(kb.board)
+        if (o.col !== at.col || o.i !== at.i) update(mover(b, id, at.col, at.i))
         setAnuncio(`${title} solto`)
       }
       return
@@ -238,10 +294,7 @@ export function useArrastar<D extends Board>(db: D | null, update: (next: D) => 
     if (!kb) return
     if (e.key === 'Escape') {
       e.preventDefault()
-      antes.current = snap(root)
-      foco.current = id
-      setKb(null)
-      setAnuncio(`${title}: cancelado`)
+      cancelarTeclado(true)
       return
     }
     let { col, i } = at
@@ -257,9 +310,8 @@ export function useArrastar<D extends Board>(db: D | null, update: (next: D) => 
     if (col === at.col && i === at.i) return posicao(base)
     antes.current = snap(root)
     foco.current = id // trocar de coluna remonta o card: devolve o foco
-    const board = mover(base, id, col, i)
-    setKb({ id, board })
-    posicao(board)
+    setKb({ id, col, index: i })
+    posicao(mover(base, id, col, i))
   }
 
   return {
@@ -267,7 +319,7 @@ export function useArrastar<D extends Board>(db: D | null, update: (next: D) => 
     drag,
     anuncio,
     /** O que mostrar: a previa do teclado, ou o db. */
-    board: kb?.board ?? db,
+    board: previa,
     /** Props do card (o className vai depois de "card "). */
     props: (id: string) => ({
       'data-id': id,

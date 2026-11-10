@@ -25,7 +25,7 @@ export const COR = {
     fundo: '#F7F7F7', superficie: '#FFFFFF', superficie2: '#EFEFEF', borda: '#E2E2E2',
     texto: '#161616', texto2: '#5E5E5E', texto3: '#8A8A8A',
     destaque: '#2563EB', destaqueTexto: '#FFFFFF', destaqueSuave: '#E8EFFD',
-    destaqueBloco: '#2563EB', destaqueBlocoTexto: '#FFFFFF',
+    destaqueBloco: '#1D4ED8', destaqueBlocoTexto: '#FFFFFF',
     perigo: '#B42318', perigoSuave: '#FDECEA', sucesso: '#1F7A4D', sucessoSuave: '#E6F4EC', aviso: '#A15C00',
   },
   escuro: {

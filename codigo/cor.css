@@ -18,7 +18,7 @@
   --destaque: #2563EB;
   --destaque-texto: #FFFFFF;
   --destaque-suave: #E8EFFD;
-  --destaque-bloco: #2563EB;        /* area grande de cor (banner, card de destaque) */
+  --destaque-bloco: #1D4ED8;        /* area grande de cor (banner, card de destaque): um tom abaixo do botao, pro texto de apoio passar de 4,5 */
   --destaque-bloco-texto: #FFFFFF;
   --perigo: #B42318;
   --perigo-suave: #FDECEA;
@@ -26,7 +26,8 @@
   --sucesso-suave: #E6F4EC;
   --aviso: #A15C00;
   /* Texto de apoio sobre fundo de destaque: puxa o matiz do fundo, nunca cinza puro */
-  --destaque-texto-2: color-mix(in srgb, var(--destaque-texto) 78%, var(--destaque));
+  /* 92%: com 78% o apoio sobre o azul do botao dava 3,8 de contraste */
+  --destaque-texto-2: color-mix(in srgb, var(--destaque-texto) 92%, var(--destaque));
   --destaque-bloco-texto-2: color-mix(in srgb, var(--destaque-bloco-texto) 78%, var(--destaque-bloco));
 }
 

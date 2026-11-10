@@ -216,6 +216,70 @@ await caso('troca de icone: o velho sai desfocado, o novo entra', async () => {
   assert.equal(r.n[0], '1'); assert.equal(r.n[1], 'none')
 })
 
+// ---- casos do teste exploratorio ----
+const dentro = (page, sel) => page.evaluate(sel => !!document.activeElement?.closest(sel), sel)
+
+await caso('explora: modal do Depois: Esc fecha, foco entra, Tab fica preso e o foco volta ao gatilho', async () => {
+  const gat = '[data-modal-abrir="depois"]'
+  await page.locator(gat).scrollIntoViewIfNeeded()
+  await page.focus(gat); await page.keyboard.press('Enter'); await page.waitForTimeout(400)
+  assert.equal(await page.$eval('[data-modal="depois"]', e => e.classList.contains('aberto')), true, 'nao abriu')
+  assert.equal(await dentro(page, '[data-modal="depois"] .m-caixa'), true, 'foco nao entrou no modal')
+  assert.equal(await page.$eval('[data-modal="depois"] .m-caixa', e => e.getAttribute('role') + e.getAttribute('aria-modal')), 'dialogtrue')
+  for (const t of ['Tab', 'Tab', 'Shift+Tab']) { await page.keyboard.press(t); assert.equal(await dentro(page, '[data-modal="depois"] .m-caixa'), true, `${t} saiu do modal`) }
+  await page.keyboard.press('Escape'); await page.waitForTimeout(400)
+  assert.equal(await page.$eval('[data-modal="depois"]', e => e.classList.contains('aberto')), false, 'Esc nao fechou')
+  assert.equal(await page.evaluate(g => document.activeElement === document.querySelector(g), gat), true, 'foco nao voltou ao gatilho')
+})
+
+await caso('explora: painel de baixo do Depois: Esc fecha, foco entra, Tab fica preso e o foco volta ao gatilho', async () => {
+  const gat = '[data-sheet-abrir="depois"]'
+  await page.locator(gat).scrollIntoViewIfNeeded()
+  await page.focus(gat); await page.keyboard.press('Enter'); await page.waitForTimeout(700)
+  assert.equal(await page.$eval('[data-sheet="depois"]', e => e.classList.contains('aberto')), true, 'nao abriu')
+  assert.equal(await dentro(page, '[data-sheet="depois"]'), true, 'foco nao entrou no painel')
+  for (const t of ['Tab', 'Tab', 'Shift+Tab']) { await page.keyboard.press(t); assert.equal(await dentro(page, '[data-sheet="depois"]'), true, `${t} saiu do painel`) }
+  await page.keyboard.press('Escape'); await page.waitForTimeout(700)
+  assert.equal(await page.$eval('[data-sheet="depois"]', e => e.classList.contains('aberto')), false, 'Esc nao fechou')
+  assert.equal(await page.evaluate(g => document.activeElement === document.querySelector(g), gat), true, 'foco nao voltou ao gatilho')
+})
+
+await caso('explora: painel de baixo fechado nao deixa sombra no rodape do palco nem entra na ordem de Tab', async () => {
+  const sel = '[data-sheet="depois"]'
+  const r = await page.$eval(sel, e => { const c = getComputedStyle(e); return { v: c.visibility, sombra: c.boxShadow } })
+  assert.equal(r.v, 'hidden', `fechado com visibility ${r.v} e sombra ${r.sombra}`)
+  await page.click('[data-sheet-abrir="depois"]'); await page.waitForTimeout(700)
+  assert.equal(await page.$eval(sel, e => getComputedStyle(e).visibility), 'visible')
+  await page.click('[data-sheet-fechar="depois"]'); await page.waitForTimeout(700)
+  assert.equal(await page.$eval(sel, e => getComputedStyle(e).visibility), 'hidden', 'depois de fechar ainda visivel')
+})
+
+await caso('explora: numero que conta segue do valor exibido quando clica de novo no meio da contagem', async () => {
+  await page.locator('#numero').scrollIntoViewIfNeeded()
+  const num = t => parseFloat(t.replace(/[^\d,]/g, '').replace(',', '.'))
+  await page.click('[data-num-tocar="depois"]'); await page.waitForTimeout(250)
+  const v = await amostrar(page, () => { window.__v0 = document.querySelector('[data-num="depois"]').textContent; document.querySelector('[data-num-tocar="depois"]').click() }, () => document.querySelector('[data-num="depois"]').textContent, 900)
+  const v0 = num(await page.evaluate(() => window.__v0)), xs = [v0, ...v.map(num)]
+  const fim = xs[xs.length - 1], dir = Math.sign(fim - v0)
+  assert.ok(dir !== 0 && [1280, 3947.5].includes(fim), `terminou em ${fim}`)
+  for (let i = 1; i < xs.length; i++) assert.ok((xs[i] - xs[i - 1]) * dir >= -0.01, `voltou do valor ${xs[i - 1]} para ${xs[i]} (saiu do que estava na tela, ${v0})`)
+  assert.ok(Math.abs(xs[1] - v0) < Math.abs(fim - v0) * 0.3, `primeiro quadro pulou de ${v0} para ${xs[1]}`)
+})
+
+await caso('explora: spinner so gira enquanto carrega e a barra do aviso anima fora do reduce', async () => {
+  const sp = '[data-btn="depois"] .spin'
+  const giros = () => page.$$eval(sp, e => e[0].getAnimations().filter(a => a.animationName === 'gira').length)
+  await page.locator('[data-btn="depois"]').scrollIntoViewIfNeeded()
+  assert.equal(await giros(), 0, 'spinner girando sem carregar')
+  await page.click('[data-btn="depois"]')
+  await page.waitForFunction(() => document.querySelector('[data-btn="depois"]').dataset.estado === 'carregando')
+  assert.equal(await giros(), 1, 'spinner nao gira carregando')
+  await page.waitForFunction(() => document.querySelector('[data-btn="depois"]').dataset.estado === 'parado', null, { timeout: 8000 })
+  assert.equal(await giros(), 0, 'spinner continua girando depois de carregar')
+  await page.locator('#aviso').scrollIntoViewIfNeeded(); await page.click('[data-aviso-abrir="depois"]')
+  assert.equal(await page.$eval('[data-aviso="depois"] i', e => e.getAnimations().filter(a => a.animationName === 'barra').length), 1)
+})
+
 await caso('1280px: sem rolagem lateral', async () => {
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0)
 })
@@ -252,6 +316,17 @@ await page.close()
     assert.ok(d <= 0.0001, `transicao do acordeao ${d}s`)
     const h = await amostrar(rm, () => document.querySelector('#acordeao [data-acd="depois"] .acd-gatilho').click(), () => document.querySelector('#acordeao [data-acd="depois"] .acd-corpo').getBoundingClientRect().height, 200)
     assert.ok(h.filter(x => x > 1 && x < h[h.length - 1] - 1).length <= 1, 'ainda anima')
+  })
+  await caso('explora: reduced motion: barra do aviso nao anima e spinner nao gira', async () => {
+    await rm.locator('#aviso').scrollIntoViewIfNeeded(); await rm.click('[data-aviso-abrir="depois"]')
+    const barra = await rm.$eval('[data-aviso="depois"] i', e => ({ n: e.getAnimations().filter(a => a.animationName === 'barra').length, d: getComputedStyle(e).display }))
+    assert.equal(barra.n, 0, 'barra do aviso ainda anima')
+    await rm.locator('[data-btn="depois"]').scrollIntoViewIfNeeded(); await rm.click('[data-btn="depois"]')
+    await rm.waitForFunction(() => document.querySelector('[data-btn="depois"]').dataset.estado === 'carregando')
+    await rm.waitForTimeout(100)
+    const sp = await rm.$eval('[data-btn="depois"] .spin', e => ({ n: e.getAnimations().filter(x => x.animationName === 'gira').length, o: getComputedStyle(e).opacity }))
+    assert.equal(sp.n, 0, 'spinner ainda gira')
+    assert.equal(sp.o, '1', 'sem indicacao estatica de carregando')
   })
   await rm.close()
 }

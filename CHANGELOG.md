@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.2.2 (10/11/2026)
+
+Teste exploratório clicando em tudo (pedido do Leonardo): 12 falhas reais, todas corrigidas, cada
+uma com caso que falha antes e passa depois.
+
+- **regras novas:** estados 11 (um clique, uma ação), 12 (Desfazer volta ao estado anterior) e 13
+  (segurar pra confirmar com teclado). Navegação 11 (URL validada), 12 (modal e painel com Esc,
+  foco preso e fundo parado) e 13 (abas com papel certo). Regra geral 9 do SKILL.md: botão com texto
+  não leva ícone de enfeite do lado.
+- **código:** `lerDaUrl` e `useEstadoNaUrl` aceitam a lista de valores válidos. `--destaque-bloco`
+  claro passou para `#1D4ED8` e `--destaque-texto-2` para 92%: o texto de apoio tingido dava 3,8 de
+  contraste. Teste novo confere esse texto nos dois temas.
+- **protótipo:** duplo clique em Arquivar quebrava a página, `?aba=` desconhecido travava a tela,
+  Desfazer do cancelamento voltava sempre "Pago", painel sem Esc e com fundo rolando, erro de e-mail
+  que não sumia, rótulo cortando o título, linha espremida em 360 e 320, contraste das pílulas,
+  spinner girando parado, Criar pedido que não criava e abas sem papel. Ícone de seta do Atualizar
+  removido.
+- **kanban:** card criado durante o arrasto pelo teclado sumia (a prévia era uma cópia velha do
+  banco). Agora a prévia é o movimento aplicado sobre o banco atual, e sair do card cancela.
+- **movimento e vitrine:** Esc e foco no modal e no painel, movimento reduzido na barra e no
+  spinner, número que conta seguindo do valor exibido, sombra do painel fechado, contraste do lado
+  Depois, aba padrão fora da URL, Desfazer de verdade no "segure" e teclado no segurar.
+
 ## 1.2.1 (10/11/2026)
 
 Ajustes que o Leonardo apontou depois de testar a 1.2, cada um com caso no e2e:

@@ -59,6 +59,15 @@ módulo skeleton. Fontes: Vercel, Rauno Freiberg, Emil Kowalski e unslop (heydam
 10. **Card de número: rótulo, número e variação com referência.** "Faturamento", `R$ 12.400,00`,
     "+12% vs outubro". Sem sparkline, sem ícone de enfeite e sem "+12%!!" (unslop). Número em
     `tabular-nums` (módulo tipografia).
+11. **Um clique, uma ação.** Ação disparada por clique trava até terminar (menu escolhido, botão
+    com `aria-busy`): clique duplo nunca duplica nem arquiva duas vezes. Quem executa e quem desfaz
+    conferem se o item ainda existe e não quebram se ele sumiu (achado no teste de 10/11/2026: o
+    duplo clique em Arquivar matava a página).
+12. **Desfazer volta ao estado anterior, não a um valor fixo.** Guardar o que era antes (status,
+    posição, texto) no momento da ação. Ação que não faz sentido no estado atual some do menu (não
+    oferecer "Cancelar" num pedido cancelado).
+13. **Segurar pra confirmar tem caminho por teclado.** Enter ou Espaço segurados pelo mesmo tempo
+    fazem o mesmo, e o rótulo acessível diz isso.
 
 ## Provar
 

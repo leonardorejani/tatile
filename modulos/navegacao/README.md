@@ -51,6 +51,15 @@ Fontes: Vercel, Rauno Freiberg, Emil Kowalski, Adam Argyle e @a1x45h. Aprovado n
       `aria-live="polite"` ("Card 3 movido para a posição 2 de 5").
     - Aplicado na demo kanban. Fontes: @a1x45h e a Vercel Web Interface Guidelines. Tempos
       citam `--mov-rapido`, `--mov-padrao` e `--curva-move` (`modulos/movimento/README.md`).
+11. **Estado vindo da URL é validado.** Valor desconhecido na URL (link velho, digitado) cai no
+    padrão e a URL é limpa, nunca quebra a tela: `lerDaUrl(busca, chave, padrao, validos)` e
+    `useEstadoNaUrl(chave, padrao, validos)` em `codigo/estados.ts`.
+12. **Modal e painel: Esc fecha, foco entra e fica, volta ao sair, fundo parado.** Ao abrir, o foco
+    vai para o primeiro campo e o Tab circula só dentro. Esc fecha. Ao fechar, o foco volta para o
+    botão que abriu. Enquanto aberto, o fundo não rola (roda do mouse nem toque), com
+    `overscroll-behavior: contain` no painel. Item de menu escolhido pelo teclado devolve o foco ao
+    gatilho.
+13. **Abas com papel certo.** `role="tablist"` no grupo, `role="tab"` e `aria-selected` em cada aba.
 
 ## Provar
 
