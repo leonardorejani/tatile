@@ -121,23 +121,33 @@ Preferências do Leonardo que viraram padrão (10/11/2026, configuração inicia
 
 Antes de dizer que a tela está pronta:
 
-- **Leitura:** módulos que a tela toca lidos, o web em toda tela no navegador, o pwa se ela vai
-  virar PWA. Tela que já existe passou pelo roteiro de revisão, com a direção aprovada antes.
-- **Valores:** espaço, cor, fonte, raio e sombra em token. Nenhum hex nem px solto.
-- **Rolagem:** toda área que rola usa `.rolagem` (contida, barra fina só com o mouse em cima).
-  Largura que não pode pular tem `scrollbar-gutter: stable`.
-- **Toque:** área de toque de 44 px no celular, hover dentro de `(hover: hover)`, campo com 16 px,
-  zoom liberado, nada embaixo do notch.
-- **Estados:** carregando (skeleton com a forma certa, sem pular), vazio, erro e desfazer no que
-  apaga.
-- **Botões e ícones:** botão com texto sem ícone de enfeite, tela final sem checks de resumo.
-- **Passos e escolhas:** tela de passos no centro, prévia real em escolha de layout, permissão pelo
-  nome do sistema.
-- **Tema:** claro e escuro conferidos, `theme-color` dos dois.
-- **Movimento:** reduzido respeitado, nada animando no que se repete muito.
-- **Prova:** auditor sem erro (e sem aviso novo com `--desde`), print em 390 e 1280 px, teste que
-  precisa ver barra de rolagem com `ignoreDefaultArgs: ['--hide-scrollbars']`, quem já usava
-  testado com o dado da versão anterior, e o que só o aparelho prova dito como pendente.
+**Leitura**
+- [ ] Módulos que a tela toca lidos, o web em toda tela no navegador, o pwa se ela vai virar PWA.
+- [ ] Tela que já existe: roteiro de revisão, com a direção aprovada antes de mexer.
+
+**Valores e forma**
+- [ ] Espaço, cor, fonte, raio e sombra em token. Nenhum hex nem px solto.
+- [ ] Botão com texto sem ícone de enfeite, tela final sem checks de resumo.
+- [ ] Tela de passos no centro, prévia real em escolha de layout, permissão pelo nome do sistema.
+
+**Rolagem e toque**
+- [ ] Toda área que rola usa `.rolagem` (contida, barra fina só com o mouse em cima).
+- [ ] Largura que não pode pular tem `scrollbar-gutter: stable`.
+- [ ] Área de toque de 44 px no celular, hover dentro de `(hover: hover)`.
+- [ ] Campo com 16 px e zoom liberado. Nada embaixo do notch.
+
+**Estados, tema e movimento**
+- [ ] Carregando com skeleton na forma certa, sem a tela pular.
+- [ ] Vazio, erro e desfazer no que apaga.
+- [ ] Claro e escuro conferidos, `theme-color` dos dois.
+- [ ] Movimento reduzido respeitado, nada animando no que se repete muito.
+
+**Prova**
+- [ ] Auditor sem erro, e sem aviso novo com `--desde`.
+- [ ] Print em 390 e 1280 px. Teste que precisa ver barra de rolagem abre com
+      `ignoreDefaultArgs: ['--hide-scrollbars']`.
+- [ ] Quem já usava testado com o dado da versão anterior no storage.
+- [ ] O que só o aparelho prova (notificação no iPhone, gesto) dito como pendente.
 
 ## Problemas comuns
 
@@ -167,43 +177,8 @@ Antes de dizer que a tela está pronta:
 
 Copiar para o projeto e ajustar. Não importar direto desta pasta.
 
-## Referências e créditos
+## Manutenção da skill
 
-Só consulta de comportamento, sem copiar código. Entram quando o módulo não resolve.
-
-- **beUI** (beui.dev, MIT): 157 componentes React e 73 React Native, estilo "menos é mais".
-- **ExpoKit** (expokit.in): React Native, referência do lado RN.
-- **AffectUI** (affectui.com): padrões de tela de agente de IA (linha do tempo, contexto).
-- Ficaram de fora por serem estilo temático: Looseleaf, Sketchbook UI e goopUI.
-- Fontes das regras: Rauno Freiberg (interfaces.rauno.me), Emil Kowalski, Vercel Web Interface
-  Guidelines, Jakub Krehel, Adam Argyle, Josh Comeau.
-- **unslop** (heydamir/unslop, CC BY 4.0): crédito a Damir Sokolovsky (@heydamir).
-- **motion-prompt** (showheyohtaki/motion-prompt, MIT): crédito a Shohei Ohtaki.
-
-## Verificar a própria skill
-
-Os testes dos dois auditores vão no repo e rodam em qualquer clone, sem `npm install`:
-
-```bash
-node --test auditor/testes/auditar.test.mjs modulos/pwa/testes/auditar.test.mjs
-```
-
-O resto (`teste/`, `package.json`: demos, vitrine, protótipo e testes visuais) fica só na cópia de
-desenvolvimento:
-
-```bash
-cd ~/.claude/skills/tatile
-npm install          # uma vez
-npm run verificar    # build, unidade, auditores, espacamento, vitrine, skeleton (web, celular, RN), movimento, barra de rolagem e protótipo
-npm run demo         # http://localhost:4870/ (no celular: http://<ip-do-mac>:4870/)
-```
-
-## Como evoluir (v2 em diante)
-
-1. Módulo novo vira pasta em `modulos/<nome>/` com `README.md` (origem, regras, como aplicar,
-   como provar) e um teste em `npm run verificar`.
-2. Mudança em módulo existente: atualizar o README do módulo e o teste junto.
-3. Registrar no `CHANGELOG.md` e subir a versão aqui: módulo novo ou regra que muda o resultado
-   sobe o meio (1.1.0), correção de texto ou teste sobe o fim (1.0.1), mudança que quebra o que
-   já foi aplicado em projeto sobe o primeiro (2.0.0).
-4. Valor que veio de fonte externa (post, repo, guia) diz a fonte e a data no README do módulo.
+Referências externas para quando o módulo não resolve (beUI, ExpoKit, AffectUI), créditos, como
+verificar a própria skill e como subir versão: `docs/manutencao.md`. Os testes dos auditores rodam em qualquer clone:
+`node --test auditor/testes/auditar.test.mjs modulos/pwa/testes/auditar.test.mjs`.
