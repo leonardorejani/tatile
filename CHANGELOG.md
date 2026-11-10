@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0 (10/11/2026)
+
+- **auditor:** regra nova `rolagem-vaza` (erro). `overflow: auto` ou `scroll` sem
+  `overscroll-behavior` na mesma regra, ou no mesmo `style="..."`, é apontado em todo CSS. Antes só o
+  auditor do PWA lembrava disso (N10, como dica), e uma lista que rola dentro dos Ajustes do Deck
+  arrastava a janela inteira. `html` e `body` ficam de fora. Teste com os casos de linha única, de
+  bloco em várias linhas, de `style` em linha e de duas regras na mesma linha.
+- **regra geral 10** no SKILL.md: rolagem dentro de rolagem não vaza.
+- **demos:** as 7 áreas que rolam na vitrine, no protótipo e nas telas de espaçamento ganharam
+  `overscroll-behavior: contain`.
+
 ## 1.2.2 (10/11/2026)
 
 Teste exploratório clicando em tudo (pedido do Leonardo): 12 falhas reais, todas corrigidas, cada

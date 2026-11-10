@@ -475,4 +475,37 @@ export const REGRAS = [
       return false
     },
   },
+  {
+    // Lista que rola dentro de outra área que rola: no fim dela a rolagem passa para a de fora
+    // (scroll chaining) e a tela inteira anda junto. Regra do módulo pwa (N10), valendo para todo CSS.
+    id: 'rolagem-vaza', severidade: 'erro',
+    descricao: 'Área que rola sem overscroll-behavior (no fim dela, a rolagem passa para a área de fora)',
+    correcao: 'acrescente overscroll-behavior: contain na mesma regra (modulos/pwa, N10)',
+    testar(linha, ctx) {
+      if (!ctx.css) return false
+      for (const m of linha.matchAll(/(?<![\w-])overflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/g)) {
+        // style="..." em linha: o bloco é o próprio atributo
+        const attr = linha.lastIndexOf('style=', m.index), q = attr >= 0 ? linha[attr + 6] : ''
+        if ((q === '"' || q === "'") && linha.indexOf(q, attr + 7) >= m.index) {
+          const dentro = linha.slice(attr + 7, linha.indexOf(q, attr + 7))
+          if (!/overscroll-behavior(?:-[xy])?\s*:/.test(dentro)) return m[0]
+          continue
+        }
+        // o bloco desta declaração: na mesma linha quando a regra cabe nela, senão as linhas do bloco
+        const abre = linha.lastIndexOf('{', m.index), fecha = linha.indexOf('}', m.index)
+        let bloco, seletor
+        if (abre >= 0) { seletor = linha.slice(Math.max(0, linha.lastIndexOf('}', abre) + 1), abre); bloco = linha.slice(abre, fecha >= 0 ? fecha : undefined) }
+        else seletor = ctx.seletor ?? ''
+        if (abre < 0 || fecha < 0) {
+          let ini = ctx.indice, fim = ctx.indice
+          while (ini > 0 && !ctx.linhas[ini].includes('{')) ini--
+          while (fim < ctx.linhas.length - 1 && !ctx.linhas[fim].includes('}')) fim++
+          bloco = ctx.linhas.slice(ini, fim + 1).join('\n')
+        }
+        if (/(?:^|[\s,>])(?:html|body|:root)\s*$/.test(seletor.trim()) || /^(?:html|body|:root)$/.test(seletor.trim())) continue
+        if (!/overscroll-behavior(?:-[xy])?\s*:/.test(bloco)) return m[0]
+      }
+      return false
+    },
+  },
 ]

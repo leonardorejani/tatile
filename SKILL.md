@@ -10,7 +10,7 @@ Pronúncia: ta-TÍ-le (de "tátil": o toque na interface e a sensação de usar)
 Padrões de design do Leonardo, montados em módulos. Cada módulo tem origem, regras, código pronto
 e teste que prova. A skill evolui por versão (`CHANGELOG.md`): a v1 é a base.
 
-**Versão atual: 1.2.2 (10/11/2026)**
+**Versão atual: 1.3.0 (10/11/2026)**
 
 ## Módulos
 
@@ -91,6 +91,11 @@ Vem do unslop. Serve para tela que já existe e "parece de template".
    "ir", faísca, check decorativo). O rótulo já diz a ação. Ícone só quando o botão é só ícone
    (com `aria-label`) ou quando o ícone é o estado (carregando, salvo). Decisão do Leonardo,
    10/11/2026: "nunca use esses tipos de ícone e dessa forma".
+10. **Rolagem dentro de rolagem não vaza.** Toda área que rola dentro de outra (lista, folha,
+    modal, painel, corpo de janela) leva `overscroll-behavior: contain`: chegou no fim dela, a de
+    fora não começa a andar. O auditor dá erro (`rolagem-vaza`) em `overflow: auto` ou `scroll` sem
+    isso, menos em `html` e `body`. Pedido de 10/11/2026, depois de uma lista de apps no Deck
+    arrastar a janela inteira junto.
 
 ## Código compartilhado
 
