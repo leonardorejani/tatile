@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.1 (10/11/2026)
+
+Ajustes que o Leonardo apontou depois de testar a 1.2, cada um com caso no e2e:
+
+- **monitor grande:** a partir de 1600 px a tela de 1440 amplia inteira por `zoom` no html
+  (`--escala` 1.15 no Full HD, 1.4 no QHD, 2 no 4K). Antes só espaço e texto cresciam, e no 4K o
+  resto ficava pequeno. `ESPACO` ganhou `escala` para JS e React Native. Os testes de monitor
+  grande mudaram para a regra nova, a pedido dele.
+- **movimento:** o check do Salvar ficava fora do centro do círculo (a grade do botão crescia pelo
+  texto escondido) e a cor misturava azul e verde. O detalhe da lista escondia o Voltar (foto alta
+  demais).
+- **protótipo:** abas cortadas viraram esmaecimento na borda onde há mais conteúdo. O Atualizar usa
+  o mesmo botão do Salvar (fecha em círculo, carrega, check, volta). A troca de tema no Com é direta,
+  sem tudo deslizando. O Sem não recebe o zoom do monitor grande.
+
 ## 1.2.0 (10/11/2026)
 
 Aprovado pelo Leonardo na página de novidades de 10/11/2026. Fontes: motion-prompt (tweet do

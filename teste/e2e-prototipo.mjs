@@ -20,6 +20,7 @@ await page.goto(base)
 await page.waitForTimeout(400)
 const tela = () => page.frames().find(f => f.url().includes('app.html'))
 const clicar = async (grupo, valor) => { await page.click(`[data-grupo="${grupo}"] [data-${grupo}="${valor}"]`); await page.waitForTimeout(450) }
+const esperarAtualizar = () => tela().waitForFunction(() => document.querySelector('[data-atualizar]').dataset.estado === 'parado', null, { timeout: 6000 })
 const css = (sel, prop) => tela().$eval(sel, (el, p) => getComputedStyle(el)[p], prop)
 
 for (const aparelho of ['celular', 'tablet', 'desktop', 'fullhd', 'qhd', '4k']) {
@@ -138,18 +139,23 @@ await caso('novo pedido: colar bloqueado so no Sem; no Com o erro fica do lado d
   }
 })
 
-await caso('monitor grande: conteudo e texto crescem por faixa no Com; no Sem estica e fica pequeno', async () => {
-  const medir = () => tela().evaluate(() => ({ w: document.querySelector('.conteudo').getBoundingClientRect().width, base: parseFloat(getComputedStyle(document.querySelector('[data-pedido] strong') || document.body).fontSize), h1: parseFloat(getComputedStyle(document.querySelector('h1')).fontSize) }))
-  await clicar('versao', 'com')
-  for (const [ap, max, base, h1] of [['fullhd', 1440, 15, 36], ['qhd', 1760, 16, 42], ['4k', 2240, 18, 48]]) {
+await caso('monitor grande: no Com a pagina inteira ganha zoom por faixa (1,15, 1,4 e 2), no Sem nao tem zoom', async () => {
+  // getBoundingClientRect devolve o valor ja ampliado, getComputedStyle o valor sem zoom
+  const medir = () => tela().evaluate(() => ({ w: document.querySelector('.conteudo').getBoundingClientRect().width, linha: document.querySelector('[data-pedido] strong').getBoundingClientRect().height, zoom: getComputedStyle(document.documentElement).zoom, base: parseFloat(getComputedStyle(document.querySelector('[data-pedido] strong')).fontSize) }))
+  await clicar('versao', 'com'); await clicar('aparelho', 'desktop')
+  const nb = await medir()
+  assert.equal(nb.zoom, '1', 'notebook com zoom')
+  for (const [ap, escala] of [['fullhd', 1.15], ['qhd', 1.4], ['4k', 2]]) {
     await clicar('aparelho', ap)
     const m = await medir()
-    assert.ok(Math.abs(m.w - max) < 1, `${ap}: conteudo ${m.w}, esperado ${max}`)
-    assert.equal(m.base, base, `${ap}: texto`); assert.equal(m.h1, h1, `${ap}: titulo`)
+    assert.ok(Math.abs(m.w - 1440 * escala) <= 2, `${ap}: conteudo ${m.w}, esperado ${1440 * escala}`)
+    assert.ok(Math.abs(m.linha / (nb.linha * escala) - 1) <= 0.1, `${ap}: linha ${m.linha}, esperado ${nb.linha * escala}`)
+    assert.equal(m.base, nb.base, `${ap}: texto base igual ao do notebook`)
   }
   await clicar('versao', 'sem')
   const sem = await medir()
   assert.ok(sem.w > 3000, `Sem no 4K deveria esticar: ${sem.w}`); assert.equal(sem.base, 14)
+  assert.equal(sem.zoom, '1', 'Sem tem zoom')
   await clicar('versao', 'com'); await clicar('aparelho', 'desktop')
 })
 
@@ -184,20 +190,79 @@ await caso('pilulas: mesma largura, texto ao lado alinhado e centro na mesma alt
   for (const i of m) assert.ok(i.dy <= 1.5, `centro desalinhado em ${i.dy}px`)
 })
 
-await caso('atualizar: icone gira enquanto carrega, mesmo com servidor rapido (so no Com)', async () => {
-  await clicar('velocidade', 'rapido'); await clicar('versao', 'com')
-  await tela().click('[data-atualizar]')
-  assert.equal(await tela().getAttribute('[data-atualizar]', 'aria-busy'), 'true')
-  assert.equal(await css('[data-atualizar] .icone-girar', 'animationName'), 'girar')
-  await page.waitForTimeout(900)
-  assert.equal(await tela().getAttribute('[data-atualizar]', 'aria-busy'), null)
+await caso('atualizar: a pilula fecha em circulo, gira, fica verde com check e a largura volta (so no Com), mesmo com servidor rapido', async () => {
+  await clicar('velocidade', 'rapido'); await clicar('versao', 'com'); await clicar('aparelho', 'desktop')
+  await esperarAtualizar()
+  const m = await tela().evaluate(() => new Promise(resolve => {
+    const b = document.querySelector('[data-atualizar]'), w0 = b.offsetWidth, h = b.offsetHeight
+    const out = [], t0 = performance.now()
+    b.click(); b.click() // clique repetido: ignorado
+    const f = () => {
+      const r = b.getBoundingClientRect()
+      out.push({ w: r.width, e: b.dataset.estado, busy: b.getAttribute('aria-busy'), spin: +getComputedStyle(b.querySelector('.spin')).opacity, bg: getComputedStyle(b).backgroundColor })
+      if (performance.now() - t0 < 3400) { if (out.length === 6) b.click(); requestAnimationFrame(f) } else resolve({ out, w0, h })
+    }
+    requestAnimationFrame(f)
+  }))
+  const { out, w0, h } = m
+  const ws = out.map(x => x.w)
+  assert.ok(ws.some(w => w > h + 3 && w < w0 - 3), 'sem larguras intermediarias')
+  assert.ok(ws.some(w => Math.abs(w - h) < 1.5), 'nao chegou ao circulo')
+  for (const e of ['fechando', 'carregando', 'salvo', 'voltando', 'parado']) assert.ok(out.some(x => x.e === e), `faltou o estado ${e}`)
+  assert.equal(out.filter((x, i) => x.e === 'fechando' && out[i - 1]?.e !== 'fechando').length, 1, 'clique repetido recomecou a animacao')
+  for (const x of out) if (x.e === 'fechando' || x.e === 'carregando') assert.equal(x.busy, 'true', `aria-busy em ${x.e}`)
+  assert.ok(out.some(x => x.e === 'carregando' && x.spin > 0.95 && Math.abs(x.w - h) < 1.5), 'spinner nao entrou no circulo')
+  for (const x of out) if (x.e === 'fechando' && x.w > h + 1) assert.ok(x.spin < 0.05, 'spinner entrou antes de virar circulo')
+  const salvo = out.filter(x => x.e === 'salvo'), fimSalvo = salvo[salvo.length - 1]
+  assert.equal(fimSalvo.bg, 'rgb(31, 122, 77)', 'nao ficou verde (--sucesso)'); assert.equal(fimSalvo.busy, null)
+  const carreg = out.filter(x => x.e === 'carregando').length
+  assert.ok(carreg >= 40, `spinner girou so ${carreg} quadros (menos de uma volta)`)
+  assert.ok(Math.abs(out[out.length - 1].w - w0) <= 1, 'largura original nao voltou')
   await clicar('versao', 'sem')
   assert.equal(await css('[data-atualizar] .icone-girar', 'display'), 'none')
+  await tela().click('[data-atualizar]'); await page.waitForTimeout(150)
+  assert.equal(await tela().getAttribute('[data-atualizar]', 'data-estado'), 'parado', 'Sem animou o botao')
+  await page.waitForTimeout(300)
+})
+
+await caso('abas no celular: o corte seco vira esmaecimento na borda, so onde ha aba escondida (so no Com)', async () => {
+  await clicar('aparelho', 'celular'); await clicar('versao', 'com'); await esperarAtualizar()
+  const ler = () => tela().$eval('.abas', e => ({ fade: e.dataset.fade ?? '', mask: getComputedStyle(e).maskImage, rolou: e.scrollLeft, sobra: e.scrollWidth - e.clientWidth }))
+  await tela().$eval('.abas', e => (e.scrollLeft = 0)); await page.waitForTimeout(100)
+  let a = await ler()
+  assert.ok(a.sobra > 0, 'as abas cabem: nada escondido para testar')
+  assert.equal(a.fade, 'dir'); assert.ok(a.mask.includes('linear-gradient') && a.mask.includes('to right'), `mascara na direita: ${a.mask}`)
+  await tela().$eval('.abas', e => (e.scrollLeft = e.scrollWidth)); await page.waitForTimeout(100)
+  a = await ler()
+  assert.equal(a.fade, 'esq'); assert.ok(a.mask.includes('to left'), `mascara na esquerda: ${a.mask}`)
+  await tela().$eval('.abas', e => (e.scrollLeft = 20)); await page.waitForTimeout(100)
+  a = await ler(); assert.equal(a.fade, 'ambos')
+  await clicar('versao', 'sem')
+  a = await ler(); assert.equal(a.fade, ''); assert.equal(a.mask, 'none')
+  await clicar('versao', 'com'); await clicar('aparelho', 'desktop')
+})
+
+await caso('tema: no Com a troca e direta no proximo quadro, no Sem continua gradual', async () => {
+  const proximoQuadro = sel => tela().evaluate(s => new Promise(r => requestAnimationFrame(() => r(getComputedStyle(document.querySelector(s)).backgroundColor))), sel)
+  for (const [v, sel, direta] of [['com', '.resumo .card', true], ['sem', 'body', false]]) {
+    await clicar('versao', v); await clicar('tema', 'claro')
+    const claro = await css(sel, 'backgroundColor')
+    await page.click('[data-tema="escuro"]')
+    const logo = await proximoQuadro(sel)
+    await page.waitForTimeout(700)
+    const final = await css(sel, 'backgroundColor')
+    assert.notEqual(final, claro, `${v}: o tema nao mudou a cor`)
+    if (direta) assert.equal(logo, final, `${v}: no proximo quadro ${logo}, final ${final}`)
+    else assert.notEqual(logo, final, `${v}: trocou de uma vez, deveria ser gradual`)
+    await clicar('tema', 'claro')
+  }
+  await clicar('versao', 'com')
 })
 
 await caso('skeleton adaptativo: mostra quantas linhas a aba tinha (2 em Pagos, vazio em Cancelados), Sem fica em 3', async () => {
   await clicar('velocidade', 'lento')
   const contar = async () => {
+    await esperarAtualizar() // o botao so aceita outro clique depois de voltar a pilula
     await tela().click('[data-atualizar]'); await page.waitForTimeout(500)
     const r = { linhas: await tela().$$eval('[data-lista] [data-sk]', l => l.length), vazio: await tela().$$eval('[data-lista] [data-sk-vazio]', l => l.length) }
     await page.waitForTimeout(1600)
@@ -434,7 +499,7 @@ await caso('1.2 movimento reduzido: as transicoes e animacoes do Com zeram', asy
     return { aviso, barra, painel }
   })
   assert.ok(r.aviso <= 0.001, `aviso ${r.aviso}s`); assert.equal(r.barra, 'none'); assert.ok(r.painel <= 0.001, `painel ${r.painel}s`)
-  const antes = await tela().evaluate(async () => { const ind = document.querySelector('.ind'); document.querySelector('[data-aba="pagos"]').click(); await new Promise(r => setTimeout(r, 30)); return ind.getAnimations().length })
+  const antes = await tela().evaluate(async () => { const ind = document.querySelector('.ind'); document.querySelector('[data-aba="pagos"]').click(); await new Promise(r => setTimeout(r, 80)); return ind.getAnimations().filter(a => a.playState === 'running').length })
   await tela().click('[data-aba="todos"]')
   assert.equal(antes, 0, 'indicador ainda anima com movimento reduzido')
   await page.emulateMedia({ reducedMotion: 'no-preference' })

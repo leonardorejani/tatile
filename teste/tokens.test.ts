@@ -26,9 +26,7 @@ test('tipo.css e TIPO dizem os mesmos tamanhos nas 6 telas', () => {
   const base = bloco(css, ':root')
   const tablet = { ...base, ...bloco(css, '@media (min-width: 640px)') }
   const desktop = { ...tablet, ...bloco(css, '@media (min-width: 1024px)') }
-  const grande = { ...desktop, ...bloco(css, '@media (min-width: 2200px)') }
-  const gigante = { ...grande, ...bloco(css, '@media (min-width: 3000px)') }
-  const telas = [['celular', base], ['tablet', tablet], ['desktop', desktop], ['amplo', desktop], ['grande', grande], ['gigante', gigante]] as const
+  const telas = [['celular', base], ['tablet', tablet], ['desktop', desktop], ['amplo', desktop], ['grande', desktop], ['gigante', desktop]] as const
   for (const [tela, vars] of telas)
     for (const [k, v] of Object.entries(TIPO[tela])) assert.equal(px(vars[`texto-${k}`]), v, `${tela} texto-${k}`)
   assert.equal(Number(base['altura-texto']), TIPO.alturaTexto)

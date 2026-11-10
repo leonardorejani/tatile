@@ -6,8 +6,9 @@ export const TIPO = {
   tablet: { xs: 12, sm: 13, base: 15, md: 17, lg: 20, xl: 26, '2xl': 32 },
   desktop: { xs: 12, sm: 13, base: 15, md: 17, lg: 22, xl: 28, '2xl': 36 },
   amplo: { xs: 12, sm: 13, base: 15, md: 17, lg: 22, xl: 28, '2xl': 36 },
-  grande: { xs: 13, sm: 14, base: 16, md: 19, lg: 24, xl: 32, '2xl': 42 },
-  gigante: { xs: 14, sm: 16, base: 18, md: 22, lg: 28, xl: 36, '2xl': 48 },
+  // grande e gigante: mesmo texto do desktop, o zoom da pagina (ESPACO.escala) amplia
+  grande: { xs: 12, sm: 13, base: 15, md: 17, lg: 22, xl: 28, '2xl': 36 },
+  gigante: { xs: 12, sm: 13, base: 15, md: 17, lg: 22, xl: 28, '2xl': 36 },
   alturaTexto: 1.5,
   alturaTitulo: 1.2,
 } as const

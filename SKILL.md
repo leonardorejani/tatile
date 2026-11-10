@@ -10,7 +10,7 @@ Pronúncia: ta-TÍ-le (de "tátil": o toque na interface e a sensação de usar)
 Padrões de design do Leonardo, montados em módulos. Cada módulo tem origem, regras, código pronto
 e teste que prova. A skill evolui por versão (`CHANGELOG.md`): a v1 é a base.
 
-**Versão atual: 1.2.0 (10/11/2026)**
+**Versão atual: 1.2.1 (10/11/2026)**
 
 ## Módulos
 

@@ -116,9 +116,11 @@ code{font:var(--texto-xs) ui-monospace,Menlo,monospace}
 /* botao que carrega: a pill fecha ate virar circulo, so entao entra o spinner.
    width e aceitavel aqui: e um unico botao e a alternativa (clip-path) nao mexe no layout ao redor. */
 .btn-c{position:relative;display:inline-grid;place-items:center;align-self:flex-start;height:44px;padding:0;overflow:hidden;border:0;border-radius:var(--raio-pilula);background:var(--destaque);color:var(--destaque-texto);cursor:pointer}
+.btn-c{grid-template-columns:minmax(0,1fr);outline:none}
+.btn-c:focus-visible{outline:2px solid var(--destaque);outline-offset:3px}
 .btn-c>*{grid-area:1/1}
 .btn-c .rot{padding:0 var(--pad);white-space:nowrap}
-.depois.btn-c,.depois .btn-c{transition:width var(--mov-padrao) var(--curva-move),background-color var(--mov-padrao) var(--curva-move),transform var(--mov-rapido) var(--curva-move)}
+.depois.btn-c,.depois .btn-c{transition:width var(--mov-padrao) var(--curva-move),background-color var(--mov-rapido) var(--curva-move),transform var(--mov-rapido) var(--curva-move)}
 .depois .btn-c>*{transition:opacity var(--mov-rapido) var(--curva-move)}
 .btn-c .spin,.btn-c .ok{width:22px;height:22px;opacity:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .btn-c .spin{animation:gira 800ms linear infinite}
@@ -156,7 +158,7 @@ code{font:var(--texto-xs) ui-monospace,Menlo,monospace}
 .ld-thumb{width:96px}
 .ld-det{position:absolute;inset:0;background:var(--superficie);padding:var(--pad);display:flex;flex-direction:column;gap:var(--icone)}
 .ld-det[hidden]{display:none}
-.ld-hero{width:100%;border-radius:var(--raio-card);transform-origin:0 0}
+.ld-hero{width:100%;height:112px;aspect-ratio:auto;flex:none;border-radius:var(--raio-card);transform-origin:0 0}
 .ld-det h3{margin:0;font-size:var(--texto-md)}
 .ld-det p{margin:0;font-size:var(--texto-sm);color:var(--texto-2)}
 

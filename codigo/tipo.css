@@ -24,15 +24,7 @@
   :root { --texto-lg: 22px; --texto-xl: 28px; --texto-2xl: 36px; }
 }
 
-/* Full HD fica igual ao desktop. QHD a 100% e 4K a 150%: um degrau acima */
-@media (min-width: 2200px) {
-  :root { --texto-xs: 13px; --texto-sm: 14px; --texto-base: 16px; --texto-md: 19px; --texto-lg: 24px; --texto-xl: 32px; --texto-2xl: 42px; }
-}
-
-/* 4K a 100% */
-@media (min-width: 3000px) {
-  :root { --texto-xs: 14px; --texto-sm: 16px; --texto-base: 18px; --texto-md: 22px; --texto-lg: 28px; --texto-xl: 36px; --texto-2xl: 48px; }
-}
+/* Monitor grande: o texto cresce pelo zoom do espaco.css (--escala), nao por tamanho proprio */
 
 /* Texto mais nitido no macOS */
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }

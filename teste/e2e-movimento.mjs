@@ -93,6 +93,28 @@ await caso('botao encolhe ate virar circulo antes do spinner, e volta a largura 
   assert.ok(Math.abs((await page.$eval(sel, e => e.offsetWidth)) - w0) <= 1, 'largura original nao voltou')
 })
 
+await caso('botao salvo: check no centro do circulo, fundo --sucesso solido e sem anel de foco ao clicar', async () => {
+  const sel = '[data-btn="depois"]'
+  await page.locator(sel).scrollIntoViewIfNeeded()
+  await page.click(sel)
+  await page.waitForFunction(() => document.querySelector('[data-btn="depois"]').dataset.estado === 'salvo', null, { timeout: 5000 })
+  await page.waitForTimeout(250)
+  const r = await page.$eval(sel, b => {
+    const bb = b.getBoundingClientRect(), o = b.querySelector('.ok').getBoundingClientRect(), cs = getComputedStyle(b)
+    const sonda = document.createElement('i'); sonda.style.color = getComputedStyle(document.documentElement).getPropertyValue('--sucesso'); document.body.append(sonda)
+    const sucesso = getComputedStyle(sonda).color; sonda.remove()
+    return { dx: o.left + o.width / 2 - (bb.left + bb.width / 2), dy: o.top + o.height / 2 - (bb.top + bb.height / 2), bg: cs.backgroundColor, sucesso, outline: cs.outlineStyle, fv: b.matches(':focus-visible') }
+  })
+  assert.ok(Math.abs(r.dx) < 1 && Math.abs(r.dy) < 1, `check fora do centro: ${r.dx}, ${r.dy}`)
+  assert.equal(r.bg, r.sucesso, 'fundo nao e --sucesso solido')
+  assert.equal(r.fv, false)
+  assert.equal(r.outline, 'none', 'anel de foco aparece com clique')
+  await page.waitForFunction(() => document.querySelector('[data-btn="depois"]').dataset.estado === 'parado', null, { timeout: 6000 })
+  await page.keyboard.press('Tab'); await page.focus(sel); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab')
+  assert.equal(await page.$eval(sel, b => b.matches(':focus-visible') && getComputedStyle(b).outlineStyle !== 'none'), true, 'sem anel no teclado')
+  await page.$eval(sel, b => b.blur())
+})
+
 await caso('painel de baixo: elastico para cima, mola ao soltar, fecha ao puxar 60% para baixo', async () => {
   const sheet = page.locator('[data-sheet="depois"]')
   await sheet.scrollIntoViewIfNeeded()
@@ -146,6 +168,16 @@ await caso('lista para detalhe: a foto anima na ida e na volta, em sentidos opos
   for (let i = 1; i < wv.length; i++) assert.ok(wv[i] <= wv[i - 1] + 0.01, 'volta: cresceu')
   assert.ok(wv[wv.length - 1] < wv[0] * 0.5, 'volta: nao terminou na miniatura')
   assert.ok(wv.filter(w => w < wv[0] - 2 && w > wv[wv.length - 1] + 2).length >= 6)
+  assert.equal(await page.$eval('[data-ld-det="depois"]', e => e.hidden), true)
+})
+
+await caso('detalhe da lista cabe no palco: foto limitada e Voltar visivel e clicavel', async () => {
+  await page.locator('#lista').scrollIntoViewIfNeeded()
+  await page.click('[data-ld-abrir="depois"]'); await page.waitForTimeout(700)
+  const r = await page.evaluate(() => { const p = document.querySelector('#lista .depois .palco').getBoundingClientRect(), v = document.querySelector('[data-ld-voltar="depois"]').getBoundingClientRect(), h = document.querySelector('[data-ld-det="depois"] [data-hero]').getBoundingClientRect(); return { dentro: v.top >= p.top && v.bottom <= p.bottom && v.left >= p.left && v.right <= p.right, h: h.height } })
+  assert.ok(r.dentro, 'Voltar fora da area visivel do palco')
+  assert.ok(r.h >= 96 && r.h <= 120, `altura da foto ${r.h}`)
+  await page.click('[data-ld-voltar="depois"]'); await page.waitForTimeout(700)
   assert.equal(await page.$eval('[data-ld-det="depois"]', e => e.hidden), true)
 })
 

@@ -11,15 +11,17 @@ export type Espaco = {
   grade: number
   item: number
   conteudoMax: number | null
+  /** Zoom da pagina inteira (monitor grande). RN multiplica as medidas por ele. */
+  escala: number
 }
 
 export const ESPACO = {
-  celular: { margem: 20, pad: 16, secao: 32, linha: 60, icone: 12, grade: 12, item: 8, conteudoMax: null },
-  tablet: { margem: 32, pad: 20, secao: 40, linha: 56, icone: 12, grade: 16, item: 8, conteudoMax: null },
-  desktop: { margem: 40, pad: 24, secao: 56, linha: 52, icone: 12, grade: 24, item: 12, conteudoMax: 1200 },
-  amplo: { margem: 48, pad: 24, secao: 64, linha: 52, icone: 12, grade: 24, item: 12, conteudoMax: 1440 },
-  grande: { margem: 64, pad: 28, secao: 72, linha: 56, icone: 14, grade: 32, item: 16, conteudoMax: 1760 },
-  gigante: { margem: 80, pad: 32, secao: 88, linha: 64, icone: 16, grade: 40, item: 20, conteudoMax: 2240 },
+  celular: { margem: 20, pad: 16, secao: 32, linha: 60, icone: 12, grade: 12, item: 8, conteudoMax: null, escala: 1 },
+  tablet: { margem: 32, pad: 20, secao: 40, linha: 56, icone: 12, grade: 16, item: 8, conteudoMax: null, escala: 1 },
+  desktop: { margem: 40, pad: 24, secao: 56, linha: 52, icone: 12, grade: 24, item: 12, conteudoMax: 1200, escala: 1 },
+  amplo: { margem: 48, pad: 24, secao: 64, linha: 52, icone: 12, grade: 24, item: 12, conteudoMax: 1440, escala: 1.15 },
+  grande: { margem: 48, pad: 24, secao: 64, linha: 52, icone: 12, grade: 24, item: 12, conteudoMax: 1440, escala: 1.4 },
+  gigante: { margem: 48, pad: 24, secao: 64, linha: 52, icone: 12, grade: 24, item: 12, conteudoMax: 1440, escala: 2 },
 } as const satisfies Record<string, Espaco>
 
 /** Mesmos cortes do CSS: 640, 1024, 1600, 2200 e 3000. No RN, passar useWindowDimensions().width. */

@@ -49,7 +49,8 @@ for (const [largura, tela] of [[390, 'celular'], [800, 'tablet'], [1280, 'deskto
     const m = await medir(largura)
     const e = espacoPara(largura)
     assert.equal(e, ESPACO[tela])
-    for (const k of ['margem', 'pad', 'secao', 'linha', 'icone', 'grade']) perto(m[k], e[k], k)
+    // monitor grande: a pagina inteira amplia por e.escala (zoom), a medida na tela vem multiplicada
+    for (const k of ['margem', 'pad', 'secao', 'linha', 'icone', 'grade']) perto(m[k], e[k] * e.escala, k)
     assert.equal(m.rolagemLateral, 0, 'rolagem lateral')
     assert.deepEqual(m.erros, [])
   })
@@ -60,12 +61,13 @@ await caso('menu lateral a partir de 768px (mesmo corte do pwa-nativo)', async (
   assert.equal((await medir(768)).menuLateral, true)
 })
 
-// Ate 1599 o conteudo para em 1200. A partir de Full HD cresce por faixa (pedido de 10/11/2026:
-// em monitor Full HD, QHD e 4K o conteudo de 1200 ficava uma tira no meio da tela)
-await caso('tela larga: conteudo para em 1200 ate 1599, 1440 no Full HD, 1760 no QHD, 2240 no 4K', async () => {
-  for (const [largura, max] of [[1500, 1200], [1920, 1440], [2560, 1760], [3840, 2240]]) {
+// Ate 1599 o conteudo para em 1200. A partir de Full HD a tela de 1440 amplia inteira por zoom
+// (pedidos de 10/11/2026: primeiro "nada fica zoado em Full HD, QHD e 4K", depois "e justamente
+// pra nao ficar pequeno assim", sobre o 4K com so espaco e texto crescendo)
+await caso('tela larga: 1200 ate 1599, depois 1440 ampliado por 1.15 (Full HD), 1.4 (QHD) e 2 (4K)', async () => {
+  for (const [largura, max] of [[1500, 1200], [1920, 1440 * 1.15], [2560, 1440 * 1.4], [3840, 1440 * 2]]) {
     const m = await medir(largura)
-    assert.ok(m.larguraConteudo <= max + 0.5 && m.larguraConteudo > max - 1, `${largura}: largura ${m.larguraConteudo}, esperado ${max}`)
+    assert.ok(Math.abs(m.larguraConteudo - max) < 2, `${largura}: largura ${m.larguraConteudo}, esperado ${max}`)
   }
 })
 

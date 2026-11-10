@@ -122,7 +122,9 @@
     if (!d?.body) return
     d.body.dataset.versao = estado.versao
     d.body.dataset.velocidade = estado.velocidade
-    d.documentElement.dataset.tema = estado.tema
+    // no Com a troca de tema e direta (sem tudo deslizando). O Sem continua gradual: e o "antes"
+    if (estado.versao === 'com' && d.documentElement.dataset.tema !== estado.tema && tela.contentWindow.tatileTema) tela.contentWindow.tatileTema(estado.tema)
+    else d.documentElement.dataset.tema = estado.tema
     tela.contentWindow.tatileMudou?.()
     for (const [grupo, valor] of Object.entries(estado))
       document.querySelectorAll(`[data-grupo="${grupo}"] button`).forEach(b => b.setAttribute('aria-pressed', String(b.dataset[grupo] === valor)))

@@ -13,6 +13,8 @@
   /* Tela de app com a tatile inteira. body[data-versao="sem"] desliga tudo: os mesmos
      componentes com valores soltos, como um app sem padrao. A troca anima no lugar. */
   :root { --t: 320ms cubic-bezier(.2, .8, .2, 1); }
+  /* o zoom de monitor grande (espaco.css) e da tatile: o Sem nao tem */
+  html:has(body[data-versao="sem"]) { zoom: 1; }
   /* Com a tatile toda transicao vem dos tokens de movimento (movimento.css). O Sem guarda o numero solto. */
   body[data-versao="com"] { --t: var(--mov-padrao) var(--curva-move); }
   * { box-sizing: border-box; }
@@ -90,6 +92,10 @@
   body[data-versao="com"] .ind { transition: transform var(--mov-padrao) var(--curva-move), width var(--mov-padrao) var(--curva-move); }
   body[data-versao="com"] .aba.on { background: transparent; }
   body[data-versao="sem"] .ind { display: none; }
+  /* Com: aba cortada vira esmaecimento, so do lado onde ha conteudo escondido (atualizado no scroll) */
+  body[data-versao="com"] .abas[data-fade="dir"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+  body[data-versao="com"] .abas[data-fade="esq"] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); }
+  body[data-versao="com"] .abas[data-fade="ambos"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); }
 
   .lista { position: relative; background: var(--superficie); color: var(--texto); border-radius: var(--raio-card); padding: 0 var(--pad); box-shadow: var(--sombra-1); border: 1px solid transparent; min-height: 120px; }
   .linha { display: flex; align-items: center; gap: var(--icone); min-height: var(--linha); padding: 8px 0; }
@@ -128,12 +134,11 @@
   .sk { background: var(--superficie-2); border-radius: 6px; animation: pulso 1.2s ease-in-out infinite; }
   body[data-versao="sem"] .sk { background: #e3e6eb; }
   @keyframes pulso { 50% { opacity: .55; } }
-  /* recarregar: o icone gira enquanto carrega, mesmo quando a resposta e rapida e o skeleton nem aparece */
-  [data-atualizar] { display: inline-flex; align-items: center; gap: 6px; }
+  /* recarregar (so no Com): o mesmo botao que carrega do teste/movimento. A pilula fecha em circulo, entra o
+     spinner, fica verde com check e a largura volta ao texto. Mesmo com resposta rapida o circulo fecha e gira. */
+  .botao-sec.btn-c .rot { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; }
   .icone-girar { width: 15px; height: 15px; flex: none; }
-  [data-atualizar][aria-busy="true"] { color: var(--texto-2); cursor: progress; }
-  [data-atualizar][aria-busy="true"] .icone-girar { animation: girar .7s linear infinite; }
-  @keyframes girar { to { transform: rotate(360deg); } }
+  [data-atualizar][aria-busy="true"] { cursor: progress; }
   body[data-versao="sem"] .icone-girar { display: none; }
 
   .vazio { text-align: center; padding: 32px 16px; color: var(--texto-2); font-size: var(--texto-sm); display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -196,7 +201,7 @@
   .botao[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
   .motivo { min-height: 18px; margin-top: -4px; }
   /* botao que vira circulo ao enviar: fixa a largura, fecha ate a altura, entra o spinner, fica verde com check */
-  .btn-c { position: relative; display: inline-grid; place-items: center; padding: 0; overflow: hidden; }
+  .btn-c { position: relative; display: inline-grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 0; overflow: hidden; }
   .btn-c > * { grid-area: 1 / 1; }
   .btn-c .rot { padding: 0 18px; white-space: nowrap; }
   .btn-c .spin, .btn-c .ok { width: 22px; height: 22px; opacity: 0; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -225,7 +230,7 @@
   .segurar i { position: absolute; inset: 0; width: 0; background: rgb(180 35 24 / .18); }
   .segurar.segurando i { width: 100%; transition: width 1s linear; }
   .segurar span { position: relative; }
-  @media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } body[data-versao="com"] .aviso i { display: none; } .btn-c .spin { animation: none; } .sk { animation: none; } [data-atualizar][aria-busy="true"] .icone-girar { animation: none; opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { :root { --t: 0ms; } body[data-versao="com"] .aviso i { display: none; } .btn-c .spin { animation: none; } .sk { animation: none; } }
 </style>
 </head>
 <body data-versao="com" data-velocidade="lento">
@@ -268,7 +273,7 @@
             <button class="aba apertavel" data-aba="cancelados">Cancelados</button>
             <span class="ind" aria-hidden="true"></span>
           </div>
-          <button class="botao-sec apertavel" data-atualizar><svg class="icone-girar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>Atualizar</button>
+          <button class="botao-sec btn-c apertavel" data-atualizar data-estado="parado"><span class="rot"><svg class="icone-girar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>Atualizar</span><svg class="spin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="40 100"/></svg><svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7"/></svg></button>
         </div>
         <div class="lista" data-lista></div>
       </section>
@@ -368,20 +373,28 @@
   function carregar() {
     const ms = document.body.dataset.velocidade === 'rapido' ? 120 : 1400
     if (!com()) { lista.innerHTML = skeleton(); setTimeout(desenhar, ms); return }
-    if (botaoAtualizar.getAttribute('aria-busy') === 'true') return
-    const inicio = performance.now()
-    botaoAtualizar.setAttribute('aria-busy', 'true')
+    if (botaoAtualizar.dataset.estado !== 'parado') return // clique repetido: ignorado ate o botao voltar
+    const btn = botaoAtualizar, w0 = btn.offsetWidth, h = btn.offsetHeight
+    btn.setAttribute('aria-busy', 'true')
+    btn.style.width = w0 + 'px'; void btn.offsetWidth // fixa em px antes de animar
+    btn.dataset.estado = 'fechando'; btn.style.width = h + 'px'
+    const fechou = terminou(btn)
     let desde = 0
     const t = setTimeout(() => { lista.innerHTML = skeleton(); desde = performance.now() }, 200)
-    setTimeout(() => {
+    const dados = new Promise(pronto => setTimeout(() => {
       clearTimeout(t)
       const falta = desde ? Math.max(0, 400 - (performance.now() - desde)) : 0
-      setTimeout(() => {
-        desenhar()
-        // uma volta inteira no minimo: icone que gira 120 ms parece engasgo
-        setTimeout(() => botaoAtualizar.removeAttribute('aria-busy'), Math.max(0, 700 - (performance.now() - inicio)))
-      }, falta)
-    }, ms)
+      setTimeout(() => { desenhar(); pronto() }, falta)
+    }, ms))
+    ;(async () => {
+      await fechou
+      btn.dataset.estado = 'carregando'
+      await Promise.all([dados, dormir(800)]) // uma volta inteira do spinner no minimo: giro de 120 ms parece engasgo
+      btn.removeAttribute('aria-busy'); btn.dataset.estado = 'salvo'; await dormir(msVar('--mov-padrao') + 250)
+      btn.dataset.estado = 'voltando'; btn.style.width = w0 + 'px'
+      await terminou(btn); await dormir(400)
+      btn.dataset.estado = 'parado'; btn.style.width = ''
+    })()
   }
 
   /* ---------- abas: com a tatile, vao para a URL e o indicador desliza ---------- */
@@ -393,7 +406,13 @@
     if (!animar) { void ind.offsetWidth; ind.style.transition = '' }
   }
   function marcarAba(animar = false) { document.querySelectorAll('[data-aba]').forEach(b => b.classList.toggle('on', b.dataset.aba === aba)); posicionarAba(animar) }
-  const ro = new ResizeObserver(() => posicionarAba(false)); ro.observe(abasEl); abasEl.querySelectorAll('.aba').forEach(b => ro.observe(b))
+  function fadeAbas() {
+    const esq = com() && abasEl.scrollLeft > 1, dir = com() && abasEl.scrollLeft + abasEl.clientWidth < abasEl.scrollWidth - 1
+    const f = esq && dir ? 'ambos' : esq ? 'esq' : dir ? 'dir' : ''
+    f ? abasEl.dataset.fade = f : abasEl.removeAttribute('data-fade')
+  }
+  abasEl.addEventListener('scroll', fadeAbas, { passive: true })
+  const ro = new ResizeObserver(() => { posicionarAba(false); fadeAbas() }); ro.observe(abasEl); abasEl.querySelectorAll('.aba').forEach(b => ro.observe(b))
   abasEl.addEventListener('click', e => {
     const b = e.target.closest('[data-aba]'); if (!b) return
     aba = b.dataset.aba; marcarAba(true); desenhar()
@@ -600,8 +619,15 @@
   window.tatileMudou = () => {
     fecharMenu(); desenhar()
     for (const k in contagem) mostrar(k, contagem[k].alvo) // Sem: valor direto. Com: segue contando
-    posicionarAba(false)
+    posicionarAba(false); fadeAbas()
   }
+  // tema: no Com a troca e direta (desliga as transicoes por um quadro), igual a trocarTemaSemTransicao de estados.ts. O Sem continua gradual
+  function trocarTemaSemTransicao(aplicar) {
+    const raiz = document.documentElement
+    raiz.classList.add('sem-transicao'); aplicar()
+    requestAnimationFrame(() => requestAnimationFrame(() => raiz.classList.remove('sem-transicao')))
+  }
+  window.tatileTema = t => trocarTemaSemTransicao(() => { document.documentElement.dataset.tema = t })
   marcarAba()
   carregar()
 </script>

@@ -12,7 +12,7 @@
   <p><strong>Uma skill do Claude Code que ensina o agente a fazer tela que parece feita por designer.</strong></p>
 
   <p>
-    <img src="https://img.shields.io/badge/vers%C3%A3o-1.2.0-1A2740?style=for-the-badge&labelColor=0B1220" alt="versão 1.2.0" />
+    <img src="https://img.shields.io/badge/vers%C3%A3o-1.2.1-1A2740?style=for-the-badge&labelColor=0B1220" alt="versão 1.2.1" />
     <img src="https://img.shields.io/badge/Claude_Code-skill-0B1220?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude Code skill" />
     <img src="https://img.shields.io/badge/TypeScript-CSS-0B1220?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript e CSS" />
     <img src="https://img.shields.io/badge/Playwright-1.65-0B1220?style=for-the-badge&logo=playwright&logoColor=white" alt="Playwright" />
@@ -42,7 +42,7 @@
 ```yaml
 produto:   skill do Claude Code com padrões de interface em módulos, cada um com regra, código e teste
 quem_usa:  quem constrói sistema, app ou PWA com o Claude Code e quer tela com acabamento
-estado:    1.2.0, usada nos projetos do autor e evoluindo por versão
+estado:    1.2.1, usada nos projetos do autor e evoluindo por versão
 ```
 
 <!-- /readme-padrao:header -->
